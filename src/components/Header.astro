@@ -1,0 +1,61 @@
+---
+import { ExternalLink, Rss, Search } from "@lucide/astro";
+import { NAV_ITEMS, SITE } from "@/consts";
+import ThemeToggle from "@/components/ThemeToggle.astro";
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 border-b border-zinc-200/70 bg-paper/85 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/85">
+  <div class="page-shell flex min-h-16 items-center justify-between gap-4">
+    <a class="focus-ring flex items-center gap-3 rounded-[8px]" href="/" aria-label={SITE.title}>
+      <span class="grid size-9 place-items-center rounded-[8px] bg-zinc-950 text-sm font-black text-white dark:bg-white dark:text-zinc-950">F</span>
+      <span class="hidden text-sm font-semibold tracking-wide text-zinc-900 dark:text-zinc-100 sm:inline">{SITE.title}</span>
+    </a>
+
+    <nav class="hidden items-center gap-1 md:flex" aria-label="主导航">
+      {NAV_ITEMS.map((item) => (
+        <a
+          class:list={[
+            "focus-ring rounded-[8px] px-3 py-2 text-sm font-medium transition",
+            currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href))
+              ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+              : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white"
+          ]}
+          href={item.href}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-1">
+      <a class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white" href="/search/" aria-label="搜索">
+        <Search class="size-5" />
+      </a>
+      <a class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white" href="/rss.xml" aria-label="RSS">
+        <Rss class="size-5" />
+      </a>
+      <a class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white" href={SITE.github} aria-label="GitHub">
+        <ExternalLink class="size-5" />
+      </a>
+      <ThemeToggle />
+    </div>
+  </div>
+
+  <nav class="page-shell flex gap-1 overflow-x-auto pb-3 md:hidden" aria-label="移动端导航">
+    {NAV_ITEMS.map((item) => (
+      <a
+        class:list={[
+          "focus-ring shrink-0 rounded-[8px] px-3 py-1.5 text-sm font-medium",
+          currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href))
+            ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+            : "text-zinc-600 dark:text-zinc-300"
+        ]}
+        href={item.href}
+      >
+        {item.label}
+      </a>
+    ))}
+  </nav>
+</header>

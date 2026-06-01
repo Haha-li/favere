@@ -1,0 +1,23 @@
+---
+import { Moon, Sun } from "@lucide/astro";
+---
+
+<button
+  id="theme-toggle"
+  class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white"
+  type="button"
+  aria-label="切换颜色模式"
+>
+  <Sun class="size-5 dark:hidden" />
+  <Moon class="hidden size-5 dark:block" />
+</button>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>("#theme-toggle");
+
+  button?.addEventListener("click", () => {
+    const root = document.documentElement;
+    const nextTheme = root.classList.toggle("dark") ? "dark" : "light";
+    localStorage.setItem("theme", nextTheme);
+  });
+</script>

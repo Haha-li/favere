@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="搜索" description="搜索博客文章。">
+  <section class="page-shell py-12">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-mint">Search</p>
+      <h1 class="mt-4 font-serif text-5xl font-bold tracking-normal text-zinc-950 dark:text-white">搜索文章</h1>
+      <p class="mt-5 text-lg leading-8 text-zinc-600 dark:text-zinc-300">输入关键词查找文章标题、正文和标签。</p>
+    </div>
+    <div id="search" class="mt-10"></div>
+  </section>
+
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener("DOMContentLoaded", () => {
+      if ("PagefindUI" in window) {
+        new window.PagefindUI({
+          element: "#search",
+          showSubResults: true,
+          showImages: false,
+          translations: {
+            placeholder: "搜索..."
+          }
+        });
+      }
+    });
+  </script>
+</BaseLayout>

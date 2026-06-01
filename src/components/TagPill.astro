@@ -1,0 +1,14 @@
+---
+interface Props {
+  name: string;
+  count?: number;
+}
+
+const { name, count } = Astro.props;
+---
+
+<a class="tag-chip" href={`/tags/${encodeURIComponent(name)}/`}>
+  <span>{name}</span>
+  {typeof count === "number" && <span class="ml-2 text-xs text-zinc-400">{count}</span>}
+</a>
+

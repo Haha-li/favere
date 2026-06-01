@@ -1,0 +1,41 @@
+---
+import { CalendarDays } from "@lucide/astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { formatDate, getAllPosts, postUrl } from "@/lib/posts";
+
+const posts = await getAllPosts();
+const years = new Map<number, typeof posts>();
+
+for (const post of posts) {
+  const year = post.data.pubDate.getFullYear();
+  years.set(year, [...(years.get(year) ?? []), post]);
+}
+---
+
+<BaseLayout title="归档" description="按时间浏览所有文章。">
+  <section class="page-shell py-12">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-coral">Archive</p>
+      <h1 class="mt-4 font-serif text-5xl font-bold tracking-normal text-zinc-950 dark:text-white">归档</h1>
+    </div>
+
+    <div class="mt-10 space-y-10">
+      {[...years.entries()].map(([year, items]) => (
+        <section class="grid gap-5 md:grid-cols-[160px_1fr]">
+          <h2 class="font-serif text-3xl font-bold text-zinc-950 dark:text-white">{year}</h2>
+          <div class="space-y-3">
+            {items.map((post) => (
+              <a class="focus-ring surface flex flex-col gap-2 rounded-[8px] p-5 transition hover:border-mint/70 sm:flex-row sm:items-center sm:justify-between" href={postUrl(post)}>
+                <span class="font-semibold text-zinc-950 dark:text-white">{post.data.title}</span>
+                <span class="inline-flex items-center gap-1.5 text-sm text-zinc-500">
+                  <CalendarDays class="size-4" />
+                  {formatDate(post.data.pubDate)}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,52 @@
+---
+import { CalendarDays, Clock } from "@lucide/astro";
+import type { BlogPost } from "@/lib/posts";
+import { formatDate, getReadingMinutes, postUrl } from "@/lib/posts";
+
+interface Props {
+  post: BlogPost;
+  featured?: boolean;
+}
+
+const { post, featured = false } = Astro.props;
+---
+
+<article class:list={[
+  "group surface overflow-hidden rounded-[8px] transition hover:-translate-y-0.5 hover:border-mint/70 hover:shadow-md",
+  featured ? "md:grid md:grid-cols-[1.15fr_1fr]" : ""
+]}>
+  {post.data.cover && (
+    <a class="block overflow-hidden" href={postUrl(post)} aria-label={post.data.title}>
+      <img
+        class:list={[
+          "h-56 w-full object-cover transition duration-500 group-hover:scale-105",
+          featured ? "md:h-full" : ""
+        ]}
+        src={post.data.cover}
+        alt=""
+        loading="lazy"
+      />
+    </a>
+  )}
+  <div class="flex min-h-64 flex-col p-5 sm:p-6">
+    <div class="flex flex-wrap gap-2">
+      {post.data.tags.slice(0, 3).map((tag) => (
+        <a class="tag-chip text-xs" href={`/tags/${encodeURIComponent(tag)}/`}>{tag}</a>
+      ))}
+    </div>
+    <h2 class:list={["mt-4 font-serif font-bold leading-tight tracking-normal", featured ? "text-3xl" : "text-2xl"]}>
+      <a class="hover:text-mint" href={postUrl(post)}>{post.data.title}</a>
+    </h2>
+    <p class="mt-3 line-clamp-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{post.data.description}</p>
+    <div class="mt-auto flex flex-wrap items-center gap-4 pt-6 text-sm text-zinc-500 dark:text-zinc-500">
+      <span class="inline-flex items-center gap-1.5">
+        <CalendarDays class="size-4" />
+        {formatDate(post.data.pubDate)}
+      </span>
+      <span class="inline-flex items-center gap-1.5">
+        <Clock class="size-4" />
+        {getReadingMinutes(post)} 分钟
+      </span>
+    </div>
+  </div>
+</article>

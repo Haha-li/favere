@@ -1,0 +1,21 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getAllPosts } from "@/lib/posts";
+
+const posts = await getAllPosts();
+---
+
+<BaseLayout title="文章" description="全部博客文章。">
+  <section class="page-shell py-12">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-mint">Blog</p>
+      <h1 class="mt-4 font-serif text-5xl font-bold tracking-normal text-zinc-950 dark:text-white">文章</h1>
+      <p class="mt-5 text-lg leading-8 text-zinc-600 dark:text-zinc-300">技术、产品、工具、部署和写作系统的持续记录。</p>
+    </div>
+    <div class="mt-10 grid gap-5 md:grid-cols-2">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>
+

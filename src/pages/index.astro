@@ -1,0 +1,79 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import TagPill from "@/components/TagPill.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { SITE } from "@/consts";
+import { getAllPosts, getTags } from "@/lib/posts";
+
+const posts = await getAllPosts();
+const featuredPost = posts[0];
+const latestPosts = posts.slice(1, 4);
+const tags = getTags(posts).slice(0, 8);
+---
+
+<BaseLayout title={SITE.title} description={SITE.description}>
+  <section class="page-shell grid min-h-[calc(100vh-4rem)] items-center gap-10 py-12 lg:grid-cols-[1fr_0.9fr] lg:py-16">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-mint">Personal Knowledge Garden</p>
+      <h1 class="mt-5 font-serif text-5xl font-bold leading-[1.05] tracking-normal text-zinc-950 dark:text-white sm:text-6xl">
+        把技术判断、生活观察和长期项目写成可回看的记录。
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">
+        一个轻量、清爽、可迁移的 Astro 博客起点。先让写作和阅读体验稳定，再逐步接入后台、评论与自动化。
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a class="focus-ring rounded-[8px] bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-mint dark:bg-white dark:text-zinc-950 dark:hover:bg-mint dark:hover:text-white" href="/blog/">
+          阅读文章
+        </a>
+        <a class="focus-ring rounded-[8px] border border-zinc-300 px-5 py-3 text-sm font-semibold text-zinc-800 transition hover:border-mint hover:text-mint dark:border-zinc-700 dark:text-zinc-200" href="/archive/">
+          查看归档
+        </a>
+      </div>
+    </div>
+
+    <div class="relative min-h-[420px] overflow-hidden rounded-[8px] border border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900">
+      <img
+        class="absolute inset-0 size-full object-cover"
+        src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80"
+        alt="一台打开的笔记本电脑和桌面工作区"
+      />
+      <div class="absolute inset-0 bg-zinc-950/35"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+        <p class="text-sm uppercase tracking-[0.18em] text-white/70">Latest</p>
+        <p class="mt-3 max-w-md font-serif text-3xl font-bold leading-tight">{featuredPost.data.title}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-12">
+    <div class="mb-6 flex items-end justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-coral">Featured</p>
+        <h2 class="mt-2 font-serif text-3xl font-bold tracking-normal text-zinc-950 dark:text-white">最新文章</h2>
+      </div>
+      <a class="text-sm font-semibold text-mint hover:underline" href="/blog/">全部文章</a>
+    </div>
+
+    <div class="grid gap-5">
+      <PostCard post={featuredPost} featured />
+      <div class="grid gap-5 md:grid-cols-3">
+        {latestPosts.map((post) => <PostCard post={post} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="page-shell py-12">
+    <div class="border-y border-zinc-200 py-8 dark:border-zinc-800">
+      <div class="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-center">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-skyline dark:text-blue-300">Topics</p>
+          <h2 class="mt-2 font-serif text-3xl font-bold tracking-normal text-zinc-950 dark:text-white">按主题浏览</h2>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          {tags.map((tag) => <TagPill name={tag.name} count={tag.count} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+

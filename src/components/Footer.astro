@@ -1,0 +1,21 @@
+---
+import { Mail, Rss } from "@lucide/astro";
+import { SITE } from "@/consts";
+---
+
+<footer class="mt-20 border-t border-zinc-200 py-10 dark:border-zinc-800">
+  <div class="page-shell flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <div>
+      <p class="font-semibold text-zinc-950 dark:text-white">{SITE.title}</p>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">{SITE.description}</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white" href={`mailto:${SITE.email}`} aria-label="邮件">
+        <Mail class="size-5" />
+      </a>
+      <a class="focus-ring rounded-[8px] p-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-white" href="/rss.xml" aria-label="RSS">
+        <Rss class="size-5" />
+      </a>
+    </div>
+  </div>
+</footer>

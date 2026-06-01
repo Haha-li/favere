@@ -1,0 +1,22 @@
+---
+import TagPill from "@/components/TagPill.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getAllPosts, getTags } from "@/lib/posts";
+
+const posts = await getAllPosts();
+const tags = getTags(posts);
+---
+
+<BaseLayout title="标签" description="按主题浏览博客文章。">
+  <section class="page-shell py-12">
+    <div class="max-w-3xl">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-mint">Tags</p>
+      <h1 class="mt-4 font-serif text-5xl font-bold tracking-normal text-zinc-950 dark:text-white">标签</h1>
+      <p class="mt-5 text-lg leading-8 text-zinc-600 dark:text-zinc-300">用主题串联文章，而不是让记录散落在时间线里。</p>
+    </div>
+    <div class="mt-10 flex flex-wrap gap-3">
+      {tags.map((tag) => <TagPill name={tag.name} count={tag.count} />)}
+    </div>
+  </section>
+</BaseLayout>
+

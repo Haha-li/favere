@@ -1,0 +1,34 @@
+---
+title: "用 Astro 搭一个长期可维护的个人博客"
+description: "从内容、UI、搜索、RSS 到未来 CMS 接入，梳理一个轻量但不简陋的博客起点。"
+pubDate: 2026-06-01
+tags: ["Astro", "UI", "Deploy"]
+cover: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80"
+---
+
+import Callout from "../../components/Callout.astro";
+
+博客不是越复杂越好。一个能长期维护的博客，通常要先把三件事做好：写作体验、阅读体验和迁移能力。
+
+<Callout title="当前选择" tone="idea">
+  前台使用 Astro 和 Tailwind CSS 4，内容先放在本地 Markdown/MDX 中。后台可以后续接 Halo、Directus、Payload 或自定义 API。
+</Callout>
+
+## 为什么先选 Astro
+
+Astro 默认输出静态页面，适合文章、归档、标签、RSS 这类内容站。它也允许在局部使用交互组件，所以你可以只在搜索、主题切换、评论区这些地方加入脚本。
+
+## UI 选择
+
+博客前台不需要 Ant Design 或 Element Plus 这类重型组件库。Tailwind 更适合控制排版、间距、颜色和暗色模式，配合少量 Astro 组件就足够稳定。
+
+## 后续扩展
+
+当文章数量上来以后，可以考虑把内容层替换为 CMS：
+
+- Halo：中文生态好，适合快速拥有后台。
+- Directus：适合数据库优先的内容模型。
+- Payload：适合想用 TypeScript 深度定制后台。
+
+前台只要继续消费统一的文章模型，就不需要重写页面。
+
