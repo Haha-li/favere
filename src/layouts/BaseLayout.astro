@@ -43,12 +43,19 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
       }
     </script>
   </head>
-  <body>
-    <Header />
-    <main id="main-content">
-      <slot />
-    </main>
-    <Footer />
+  <body class="relative overflow-x-hidden min-h-screen bg-paper bg-dot-grid text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
+    <!-- Global Aurora Glowing Blobs in Background -->
+    <div class="absolute top-[10%] left-[20%] -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full bg-mint/20 blur-[120px] dark:bg-mint/12 pointer-events-none z-0" aria-hidden="true"></div>
+    <div class="absolute bottom-[20%] right-[10%] translate-x-1/2 translate-y-1/2 size-[650px] rounded-full bg-coral/18 blur-[140px] dark:bg-coral/12 pointer-events-none z-0" aria-hidden="true"></div>
+    <div class="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 size-[750px] rounded-full bg-skyline/15 blur-[165px] dark:bg-skyline/10 pointer-events-none z-0" aria-hidden="true"></div>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+      <Header />
+      <main id="main-content" class="flex-grow">
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>
 

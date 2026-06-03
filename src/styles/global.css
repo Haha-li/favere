@@ -55,5 +55,31 @@
   .prose-blog {
     @apply prose prose-zinc max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-mint prose-a:no-underline hover:prose-a:underline prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-coral prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-zinc-800;
   }
+
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, rgba(23, 23, 23, 0.08) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  .dark .bg-dot-grid {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+  }
+
+  .glass {
+    @apply border border-zinc-200 bg-white/70 backdrop-blur-md shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/60;
+  }
+
+  .sticky-note-yellow {
+    @apply bg-amber-50/90 text-amber-950 border border-amber-200/60 shadow-md transition-all duration-300 hover:rotate-0 hover:scale-[1.02] hover:shadow-lg dark:bg-amber-950/20 dark:text-amber-100 dark:border-amber-900/50;
+  }
+
+  .sticky-note-mint {
+    @apply bg-emerald-50/90 text-emerald-950 border border-emerald-200/60 shadow-md transition-all duration-300 hover:rotate-0 hover:scale-[1.02] hover:shadow-lg dark:bg-emerald-950/20 dark:text-emerald-100 dark:border-emerald-900/50;
+  }
+
+  .sticky-note-coral {
+    @apply bg-rose-50/90 text-rose-950 border border-rose-200/60 shadow-md transition-all duration-300 hover:rotate-0 hover:scale-[1.02] hover:shadow-lg dark:bg-rose-950/20 dark:text-rose-100 dark:border-rose-900/50;
+  }
 }
+
 
