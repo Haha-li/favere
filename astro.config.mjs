@@ -4,9 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
+import { loadEnv } from "vite";
 
-const isProd = process.env.NODE_ENV === "production" || process.argv.includes("build") || process.argv.includes("telemetry");
-const enableKeystatic = !isProd && process.env.ENABLE_KEYSTATIC === "true";
+const mode = process.env.NODE_ENV === "production" ? "production" : "development";
+const env = loadEnv(mode, process.cwd(), "");
+const enableKeystatic = mode !== "production" && env.ENABLE_KEYSTATIC === "true";
 
 export default defineConfig({
   site: "https://example.com",
