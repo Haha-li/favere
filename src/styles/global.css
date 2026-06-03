@@ -56,6 +56,18 @@
     @apply prose prose-zinc max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-mint prose-a:no-underline hover:prose-a:underline prose-code:rounded prose-code:bg-zinc-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-coral prose-code:before:content-none prose-code:after:content-none dark:prose-code:bg-zinc-800;
   }
 
+  .prose-blog blockquote {
+    @apply border-l-4 border-mint bg-mint/5 dark:bg-mint/10 py-3.5 px-5 rounded-r-[6px] not-italic my-6 border-t-0 border-r-0 border-b-0;
+  }
+
+  .prose-blog blockquote p {
+    @apply text-zinc-800 dark:text-zinc-200 text-[15px] leading-6 before:content-none after:content-none m-0!;
+  }
+
+  .prose-blog blockquote strong {
+    @apply text-mint font-semibold block mb-1;
+  }
+
   .bg-dot-grid {
     background-image: radial-gradient(circle, rgba(23, 23, 23, 0.08) 1.5px, transparent 1.5px);
     background-size: 24px 24px;

@@ -17,6 +17,17 @@ npm install
 npm run dev
 ```
 
+## 本地内容编辑
+
+项目集成了 Keystatic，但默认不会启用编辑入口。需要编辑文章时，在本机显式开启：
+
+```bash
+$env:ENABLE_KEYSTATIC="true"
+npm run dev
+```
+
+然后访问 `/keystatic`。当前 Keystatic 使用 local storage，只适合本机编辑；不要把开启了 Keystatic 的 dev server 暴露到公网或共享给不可信网络。生产构建不会加载 Keystatic。
+
 ## 构建
 
 ```bash
@@ -31,4 +42,3 @@ npm run preview
 1. 将 `astro.config.mjs` 里的 `site` 改成你的真实域名。
 2. 修改 `src/consts.ts` 中的站点标题、作者和社交链接。
 3. 在 `src/content/blog/` 中新增或迁移文章。
-
