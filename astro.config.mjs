@@ -11,7 +11,7 @@ const env = loadEnv(mode, process.cwd(), "");
 const enableKeystatic = mode !== "production" && env.ENABLE_KEYSTATIC === "true";
 
 export default defineConfig({
-  site: "https://example.com",
+  site: "https://livvvi.com",
   integrations: [
     react(),
     mdx(),
