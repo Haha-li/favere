@@ -1,5 +1,5 @@
 ---
-import { ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from '@lucide/astro';
+import { ArrowRight, KeyRound, LockKeyhole, ShieldCheck, Sparkles } from '@lucide/astro';
 import {
   ADMIN_AUTH_COOKIE,
   getAdminAuthConfig,
@@ -46,94 +46,123 @@ const message =
       }
     </script>
   </head>
-  <body class="min-h-screen bg-[#fafafa] text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
-    <main class="relative grid min-h-screen overflow-hidden px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:px-12">
-      <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(24,24,27,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(24,24,27,0.08)_1px,transparent_1px)] bg-[size:48px_48px] dark:bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)]"></div>
-      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(15,159,143,0.22),transparent_32%),radial-gradient(circle_at_78%_22%,rgba(228,93,72,0.16),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.9),rgba(250,250,250,0.66))] dark:bg-[radial-gradient(circle_at_18%_18%,rgba(15,159,143,0.18),transparent_32%),radial-gradient(circle_at_78%_22%,rgba(228,93,72,0.15),transparent_30%),linear-gradient(135deg,rgba(9,9,11,0.86),rgba(24,24,27,0.78))]"></div>
+  <body class="min-h-screen bg-[#f5f3ee] text-zinc-950 antialiased dark:bg-[#0b0d10] dark:text-zinc-50">
+    <main class="relative isolate min-h-screen overflow-hidden px-4 py-5 sm:px-6 lg:px-8">
+      <div class="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(115deg,rgba(245,243,238,0.96),rgba(232,239,236,0.92)_42%,rgba(244,237,231,0.96))] dark:bg-[linear-gradient(115deg,#0b0d10,#101820_44%,#16110f)]"></div>
+      <div class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(rgba(24,24,27,0.075)_1px,transparent_1px),linear-gradient(90deg,rgba(24,24,27,0.075)_1px,transparent_1px)] bg-[size:40px_40px] opacity-80 dark:bg-[linear-gradient(rgba(255,255,255,0.075)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.075)_1px,transparent_1px)]"></div>
+      <div class="pointer-events-none absolute inset-x-[-12%] top-[12%] -z-10 h-72 rotate-[-8deg] bg-[linear-gradient(90deg,transparent,rgba(15,159,143,0.22),rgba(228,93,72,0.16),transparent)] blur-3xl dark:bg-[linear-gradient(90deg,transparent,rgba(15,159,143,0.18),rgba(228,93,72,0.14),transparent)]"></div>
 
-      <section class="relative z-10 flex min-h-[38vh] flex-col justify-between py-4 lg:min-h-full lg:py-8">
-        <a
-          href="/"
-          class="focus-ring inline-flex w-fit items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-zinc-700 no-underline transition-colors hover:text-mint dark:text-zinc-300"
-        >
-          Favere Notes
-        </a>
+      <section class="mx-auto grid min-h-[calc(100vh-2.5rem)] w-full max-w-7xl grid-rows-[auto_1fr_auto] gap-6">
+        <header class="flex items-center justify-between">
+          <a
+            href="/"
+            class="focus-ring inline-flex h-10 items-center gap-2 border border-zinc-300/80 bg-white/58 px-3 text-sm font-semibold text-zinc-900 no-underline backdrop-blur transition-colors hover:border-mint hover:text-mint dark:border-white/10 dark:bg-white/8 dark:text-zinc-100"
+          >
+            <span class="grid size-5 place-items-center bg-zinc-950 text-[10px] font-bold text-white dark:bg-white dark:text-zinc-950">F</span>
+            Favere Notes
+          </a>
 
-        <div class="max-w-2xl py-14 lg:py-0">
-          <div class="mb-7 inline-flex items-center gap-2 border border-zinc-300 bg-white/72 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-600 backdrop-blur dark:border-zinc-700 dark:bg-zinc-900/70 dark:text-zinc-300">
+          <div class="hidden items-center gap-2 border border-zinc-300/70 bg-white/48 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-600 backdrop-blur dark:border-white/10 dark:bg-white/8 dark:text-zinc-300 sm:inline-flex">
             <ShieldCheck class="size-4 text-mint" aria-hidden="true" />
-            Private CMS Gate
+            Admin Gate
           </div>
-          <h1 class="max-w-xl text-5xl font-semibold leading-[0.96] tracking-normal text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
-            内容宇宙的入口，只给作者打开。
-          </h1>
-          <p class="mt-7 max-w-lg text-base leading-8 text-zinc-600 dark:text-zinc-300">
-            这里会先验证管理员会话，再进入 Keystatic。公开博客继续保持开放，后台页面和后台 API 会被一起拦住。
-          </p>
-        </div>
+        </header>
 
-        <div class="grid max-w-xl gap-3 text-sm text-zinc-600 dark:text-zinc-400 sm:grid-cols-3">
-          <span class="border-t border-zinc-300 pt-3 dark:border-zinc-700">HttpOnly cookie</span>
-          <span class="border-t border-zinc-300 pt-3 dark:border-zinc-700">Signed session</span>
-          <span class="border-t border-zinc-300 pt-3 dark:border-zinc-700">Keystatic guarded</span>
-        </div>
-      </section>
+        <div class="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(360px,460px)]">
+          <section class="relative min-h-[420px] overflow-hidden border border-zinc-300/70 bg-white/44 p-6 shadow-[0_30px_120px_rgba(24,24,27,0.12)] backdrop-blur-2xl dark:border-white/10 dark:bg-white/7 sm:p-8 lg:min-h-[560px] lg:p-10">
+            <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.56),transparent_38%),linear-gradient(215deg,rgba(15,159,143,0.13),transparent_40%),linear-gradient(315deg,rgba(228,93,72,0.12),transparent_42%)] dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.08),transparent_38%),linear-gradient(215deg,rgba(15,159,143,0.14),transparent_40%),linear-gradient(315deg,rgba(228,93,72,0.11),transparent_42%)]"></div>
+            <div class="relative flex h-full flex-col justify-between">
+              <div>
+                <div class="mb-10 inline-flex items-center gap-2 border border-zinc-300 bg-[#f5f3ee]/80 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-600 dark:border-white/10 dark:bg-zinc-950/70 dark:text-zinc-300">
+                  <Sparkles class="size-4 text-coral" aria-hidden="true" />
+                  Creator Console
+                </div>
 
-      <section class="relative z-10 flex items-center justify-center lg:justify-end">
-        <div class="w-full max-w-[440px] border border-zinc-200 bg-white/86 p-6 shadow-[0_24px_80px_rgba(24,24,27,0.16)] backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/82 sm:p-8">
-          <div class="mb-7 flex items-start justify-between gap-5">
-            <div>
-              <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Admin Login</p>
-              <h2 class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">进入后台</h2>
+                <h1 class="max-w-3xl text-5xl font-semibold leading-[0.92] tracking-normal text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl">
+                  写作后台，从这里进入。
+                </h1>
+                <p class="mt-7 max-w-xl text-base leading-8 text-zinc-600 dark:text-zinc-300">
+                  公开页面保持开放，内容编辑入口单独验证。退出后台后会清理外层会话，再回到这里。
+                </p>
+              </div>
+
+              <div class="mt-14 grid gap-3 sm:grid-cols-3">
+                <div class="border-t border-zinc-300 pt-4 dark:border-white/10">
+                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-500">Scope</p>
+                  <p class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">Keystatic</p>
+                </div>
+                <div class="border-t border-zinc-300 pt-4 dark:border-white/10">
+                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-500">Session</p>
+                  <p class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">8 hours</p>
+                </div>
+                <div class="border-t border-zinc-300 pt-4 dark:border-white/10">
+                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-500">Return</p>
+                  <p class="mt-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">Login gate</p>
+                </div>
+              </div>
             </div>
-            <div class="grid size-11 place-items-center border border-zinc-200 bg-zinc-50 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
-              <LockKeyhole class="size-5" aria-hidden="true" />
-            </div>
-          </div>
+          </section>
 
-          {
-            message && (
-              <p
-                class:list={[
-                  'mb-5 border px-4 py-3 text-sm leading-6',
-                  error === 'invalid' || error === 'missing-config'
-                    ? 'border-coral/35 bg-coral/10 text-coral dark:text-red-200'
-                    : 'border-mint/30 bg-mint/10 text-mint dark:text-emerald-200',
-                ]}
+          <section class="border border-zinc-300/80 bg-[#fbfaf7]/88 p-5 shadow-[0_26px_90px_rgba(24,24,27,0.16)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/82 sm:p-7">
+            <div class="mb-7 flex items-start justify-between gap-5 border-b border-zinc-200 pb-6 dark:border-white/10">
+              <div>
+                <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Secure entry</p>
+                <h2 class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">验证管理员密码</h2>
+              </div>
+              <div class="grid size-11 place-items-center border border-zinc-300 bg-white text-zinc-900 shadow-sm dark:border-white/10 dark:bg-white/8 dark:text-white">
+                <LockKeyhole class="size-5" aria-hidden="true" />
+              </div>
+            </div>
+
+            {
+              message && (
+                <p
+                  class:list={[
+                    'mb-5 border px-4 py-3 text-sm leading-6',
+                    error === 'invalid' || error === 'missing-config'
+                      ? 'border-coral/35 bg-coral/10 text-coral dark:text-red-200'
+                      : 'border-mint/30 bg-mint/10 text-mint dark:text-emerald-200',
+                  ]}
+                >
+                  {message}
+                </p>
+              )
+            }
+
+            <form action="/api/admin-auth/login" method="post" class="space-y-5">
+              <input type="hidden" name="next" value={next} />
+              <label class="block" for="password">
+                <span class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200">管理员密码</span>
+                <span class="relative block">
+                  <KeyRound class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    autofocus
+                    class="focus-ring h-12 w-full border border-zinc-300 bg-white pl-11 pr-4 text-base text-zinc-950 outline-none transition-colors placeholder:text-zinc-400 hover:border-zinc-500 dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:hover:border-zinc-500"
+                    placeholder="输入后台密码"
+                  />
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                class="focus-ring inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-zinc-950 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-mint dark:bg-white dark:text-zinc-950 dark:hover:bg-mint dark:hover:text-white"
               >
-                {message}
-              </p>
-            )
-          }
-
-          <form action="/api/admin-auth/login" method="post" class="space-y-5">
-            <input type="hidden" name="next" value={next} />
-            <label class="block" for="password">
-              <span class="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-200">管理员密码</span>
-              <span class="relative block">
-                <KeyRound class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="current-password"
-                  required
-                  autofocus
-                  class="focus-ring h-12 w-full border border-zinc-300 bg-white pl-11 pr-4 text-base text-zinc-950 outline-none transition-colors placeholder:text-zinc-400 hover:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white dark:hover:border-zinc-500"
-                  placeholder="输入后台密码"
-                />
-              </span>
-            </label>
-
-            <button
-              type="submit"
-              class="focus-ring inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-zinc-950 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-mint dark:bg-white dark:text-zinc-950 dark:hover:bg-mint dark:hover:text-white"
-            >
-              进入 Keystatic
-              <ArrowRight class="size-4" aria-hidden="true" />
-            </button>
-          </form>
+                进入 Keystatic
+                <ArrowRight class="size-4" aria-hidden="true" />
+              </button>
+            </form>
+          </section>
         </div>
+
+        <footer class="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-500">
+          <span>Favere Notes CMS</span>
+          <span>Creator console</span>
+        </footer>
       </section>
     </main>
   </body>
