@@ -45,6 +45,9 @@ npm run dev
 - `KEYSTATIC_GITHUB_CLIENT_SECRET`
 - `KEYSTATIC_SECRET`
 - `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`
+- `KEYSTATIC_ADMIN_PASSWORD`
+
+`KEYSTATIC_ADMIN_PASSWORD` 是项目内置后台门禁的管理员密码。访问 `/keystatic` 或 `/api/keystatic/*` 前会先跳转到 `/admin-login`，登录成功后才会放行。密码不要提交到 Git，线上请配置为 Cloudflare Worker 环境变量；本地开发可放在 `.env` 中。
 
 如果某个环境需要隐藏后台，可设置：
 
