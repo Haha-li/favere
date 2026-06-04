@@ -30,7 +30,7 @@ npm run dev
 npm run dev
 ```
 
-如需在本地测试 GitHub storage，可临时设置：
+生产构建会强制使用 `github` storage，避免把本地 `.env` 中的 `local` 模式带到线上。如需在本地测试 GitHub storage，可临时设置：
 
 ```bash
 $env:PUBLIC_KEYSTATIC_STORAGE_KIND="github"

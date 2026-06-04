@@ -1,8 +1,9 @@
 import { config, fields, collection } from '@keystatic/core';
 
 const storageKind =
-  import.meta.env.PUBLIC_KEYSTATIC_STORAGE_KIND ??
-  (import.meta.env.PROD ? 'github' : 'local');
+  import.meta.env.PROD
+    ? 'github'
+    : import.meta.env.PUBLIC_KEYSTATIC_STORAGE_KIND ?? 'local';
 
 if (storageKind !== 'local' && storageKind !== 'github') {
   throw new Error('PUBLIC_KEYSTATIC_STORAGE_KIND 只能设置为 local 或 github');
