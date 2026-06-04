@@ -1,9 +1,25 @@
 import { config, fields, collection } from '@keystatic/core';
 
+const storageKind =
+  import.meta.env.PUBLIC_KEYSTATIC_STORAGE_KIND ??
+  (import.meta.env.PROD ? 'github' : 'local');
+
+if (storageKind !== 'local' && storageKind !== 'github') {
+  throw new Error('PUBLIC_KEYSTATIC_STORAGE_KIND 只能设置为 local 或 github');
+}
+
+const storage =
+  storageKind === 'github'
+    ? ({
+        kind: 'github',
+        repo: 'Haha-li/favere',
+      } as const)
+    : ({
+        kind: 'local',
+      } as const);
+
 export default config({
-  storage: {
-    kind: 'local',
-  },
+  storage,
   ui: {
     brand: {
       name: 'Favere Notes 创意工作台',

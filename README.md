@@ -17,16 +17,44 @@ npm install
 npm run dev
 ```
 
-## 本地内容编辑
+## 内容编辑
 
-项目集成了 Keystatic，但默认不会启用编辑入口。需要编辑文章时，在本机显式开启：
+项目集成了 Keystatic。默认情况下：
+
+- 本地开发使用 `local` storage，文章直接写入本机文件。
+- 生产构建使用 `github` storage，线上保存会提交到 `Haha-li/favere`，再触发 Cloudflare Pages 重新部署。
+
+本地运行后访问 `/keystatic`：
 
 ```bash
-$env:ENABLE_KEYSTATIC="true"
 npm run dev
 ```
 
-然后访问 `/keystatic`。当前 Keystatic 使用 local storage，只适合本机编辑；不要把开启了 Keystatic 的 dev server 暴露到公网或共享给不可信网络。生产构建不会加载 Keystatic。
+如需在本地测试 GitHub storage，可临时设置：
+
+```bash
+$env:PUBLIC_KEYSTATIC_STORAGE_KIND="github"
+npm run dev
+```
+
+不要使用 `KEYSTATIC_STORAGE_KIND` 切换 storage；Keystatic 配置会同时被浏览器和服务端加载，必须使用 `PUBLIC_KEYSTATIC_STORAGE_KIND` 才能保持两边一致。
+
+生产环境需要把 Keystatic GitHub App 生成的环境变量配置到 Cloudflare 项目：
+
+- `KEYSTATIC_GITHUB_CLIENT_ID`
+- `KEYSTATIC_GITHUB_CLIENT_SECRET`
+- `KEYSTATIC_SECRET`
+- `PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`
+
+如果某个环境需要隐藏后台，可设置：
+
+```bash
+SKIP_KEYSTATIC=true
+```
+
+线上使用 `/keystatic` 需要服务端路由。Astro 6 的 Cloudflare adapter 面向 Cloudflare Workers；如果只部署到 Cloudflare Pages 静态站点，博客前台可以正常访问，但 Keystatic 后台不会完整工作。
+
+Cloudflare Workers 还需要一个名为 `SESSION` 的 KV binding，用于保存后台登录会话。构建产物会在 `dist/server/wrangler.json` 中声明该绑定；如果你在 Cloudflare 控制台手动配置，绑定名也必须保持为 `SESSION`。
 
 ## 构建
 
