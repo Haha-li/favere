@@ -5,7 +5,6 @@ import {
   getAdminAuthConfig,
   isAdminAuthPath,
   isKeystaticApiPath,
-  isKeystaticPagePath,
   isProtectedKeystaticPath,
   normalizeAdminNextPath,
   verifyAdminSession,
@@ -14,6 +13,8 @@ import {
 type RuntimeLocals = Record<string, unknown> & {
   runtime?: Record<string, unknown>;
 };
+
+const KEYSTATIC_GITHUB_LOGOUT_PATH = '/api/keystatic/github/logout';
 
 function createRedirectResponse(location: string, status = 302): Response {
   return new Response(null, {
@@ -64,65 +65,25 @@ function attachRuntimeEnv(locals: RuntimeLocals, env: Record<string, unknown>): 
   }
 }
 
-function isHtmlResponse(response: Response): boolean {
-  return (response.headers.get('content-type') ?? '').includes('text/html');
+function getExpiredAdminCookieHeader(): string {
+  return [
+    `${ADMIN_AUTH_COOKIE}=deleted`,
+    'Path=/',
+    'Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+    'HttpOnly',
+    'SameSite=Lax',
+    ...(import.meta.env.PROD ? ['Secure'] : []),
+  ].join('; ');
 }
 
-async function injectAdminLogoutBridge(response: Response): Promise<Response> {
-  if (!isHtmlResponse(response)) {
-    return response;
-  }
-
-  const html = await response.text();
-  const logoutBridge = String.raw`
-<script id="favere-admin-logout-bridge">
-(() => {
-  const logoutPath = "/api/admin-auth/logout";
-  const logoutText = ["logout", "log out", "sign out", "signout"];
-  let isLeaving = false;
-
-  function clearOuterSession(delay = 0) {
-    if (isLeaving) return;
-    isLeaving = true;
-    window.setTimeout(() => {
-      window.location.assign(logoutPath);
-    }, delay);
-  }
-
-  function readableText(element) {
-    return [
-      element.textContent,
-      element.getAttribute("aria-label"),
-      element.getAttribute("title"),
-      element.getAttribute("href")
-    ].filter(Boolean).join(" ").trim().toLowerCase();
-  }
-
-  function looksLikeLogout(element) {
-    const text = readableText(element);
-    return logoutText.some((item) => text.includes(item));
-  }
-
-  document.addEventListener("click", (event) => {
-    const target = event.target instanceof Element
-      ? event.target.closest("button,a,[role='button'],[role='menuitem']")
-      : null;
-    if (!target) return;
-    if (looksLikeLogout(target)) {
-      clearOuterSession(450);
-    }
-  }, true);
-})();
-</script>`;
-  const rewrittenHtml = html.includes('</body>')
-    ? html.replace('</body>', `${logoutBridge}</body>`)
-    : `${html}${logoutBridge}`;
+function redirectKeystaticLogoutToAdminLogin(response: Response): Response {
   const headers = new Headers(response.headers);
-  headers.delete('content-length');
+  headers.set('location', `${ADMIN_LOGIN_PATH}?logged_out=1`);
+  headers.append('set-cookie', getExpiredAdminCookieHeader());
   headers.set('cache-control', 'no-store');
 
-  return new Response(rewrittenHtml, {
-    status: response.status,
+  return new Response(response.body, {
+    status: response.status >= 300 && response.status < 400 ? response.status : 303,
     statusText: response.statusText,
     headers,
   });
@@ -154,8 +115,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
-  if (isKeystaticPagePath(pathname)) {
-    return injectAdminLogoutBridge(response);
+  if (pathname === KEYSTATIC_GITHUB_LOGOUT_PATH) {
+    return redirectKeystaticLogoutToAdminLogin(response);
   }
 
   return response;
