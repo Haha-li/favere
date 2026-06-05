@@ -1,0 +1,246 @@
+---
+title: "Git 使用方法：从日常提交到协作发布"
+description: "一份面向个人项目和小团队协作的 Git 入门说明，梳理初始化、提交、分支、合并、同步远程仓库和常见排错。"
+pubDate: 2026-06-06
+tags: ["Git", "Workflow", "Tools"]
+cover: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=1400&q=80"
+---
+
+Git 是一套版本控制工具。它最重要的价值不是“把代码传到远程仓库”，而是让每一次修改都能被记录、比较、回退和协作。对个人博客、前端项目、后端服务或脚本工具来说，Git 都像项目的时间线：你可以知道什么时候改了什么，也可以在出问题时回到一个可靠的状态。
+
+这篇文章按日常使用顺序梳理 Git：先理解仓库和提交，再掌握分支、同步、合并和排错。
+
+## 一、初始化仓库
+
+在一个新项目目录中执行：
+
+```bash
+git init
+```
+
+这会创建一个隐藏的 `.git` 目录，用来保存版本历史。初始化之后，Git 开始追踪这个目录里的文件变化。
+
+如果项目已经在远程平台上创建好了，可以直接克隆：
+
+```bash
+git clone https://github.com/user/project.git
+```
+
+克隆会把远程仓库下载到本地，并自动配置默认远程地址 `origin`。
+
+## 二、查看当前状态
+
+写代码前后都建议多看状态：
+
+```bash
+git status
+```
+
+它会告诉你三类信息：
+
+- 哪些文件被修改了
+- 哪些文件还没有被 Git 追踪
+- 哪些文件已经进入暂存区，准备提交
+
+如果只想看简短结果，可以使用：
+
+```bash
+git status --short
+```
+
+## 三、理解工作区、暂存区和提交
+
+Git 的日常提交可以理解成三步：
+
+1. 修改文件，文件处在工作区。
+2. 使用 `git add` 把修改放进暂存区。
+3. 使用 `git commit` 把暂存区内容保存成一次提交。
+
+常用命令如下：
+
+```bash
+git add src/content/blog/git-usage-guide.mdx
+git commit -m "Add Git usage guide"
+```
+
+如果要一次暂存所有改动：
+
+```bash
+git add .
+```
+
+更稳妥的习惯是先查看改动，再决定暂存哪些文件：
+
+```bash
+git diff
+git add path/to/file
+git commit -m "Describe the change"
+```
+
+`git diff` 查看工作区和暂存区之间的差异，`git diff --staged` 查看已经暂存、即将提交的差异。
+
+## 四、写好提交信息
+
+提交信息要说明这次提交做了什么。它不需要很长，但应该足够清楚。
+
+推荐格式：
+
+```bash
+git commit -m "Add search page"
+git commit -m "Fix article date sorting"
+git commit -m "Update Cloudflare deployment notes"
+```
+
+不推荐只写：
+
+```bash
+git commit -m "update"
+git commit -m "fix"
+```
+
+好的提交信息会让未来的你更快理解项目历史，也会让团队协作更顺畅。
+
+## 五、使用分支隔离工作
+
+分支适合用来开发新功能、修复问题或尝试方案。
+
+创建并切换到新分支：
+
+```bash
+git switch -c feature/git-guide
+```
+
+查看所有分支：
+
+```bash
+git branch
+```
+
+切回主分支：
+
+```bash
+git switch main
+```
+
+有些项目默认主分支叫 `master`，有些叫 `main`。可以通过 `git branch` 查看当前项目实际使用哪个名称。
+
+## 六、合并分支
+
+当一个功能分支开发完成后，可以切回主分支并合并：
+
+```bash
+git switch main
+git merge feature/git-guide
+```
+
+如果两个分支修改了同一个文件的同一段内容，Git 可能无法自动判断保留哪一版，这时会产生冲突。解决冲突的一般步骤是：
+
+1. 打开冲突文件，手动保留正确内容。
+2. 使用 `git add` 标记冲突已解决。
+3. 使用 `git commit` 完成合并提交。
+
+冲突不是错误，它只是 Git 在提醒你：这里需要人来做一次判断。
+
+## 七、连接远程仓库
+
+查看当前远程地址：
+
+```bash
+git remote -v
+```
+
+添加远程地址：
+
+```bash
+git remote add origin https://github.com/user/project.git
+```
+
+第一次推送本地分支时，可以设置上游分支：
+
+```bash
+git push -u origin main
+```
+
+之后同一个分支再推送，一般只需要：
+
+```bash
+git push
+```
+
+## 八、拉取远程更新
+
+在多人协作项目里，开始工作前通常先同步远程更新：
+
+```bash
+git pull
+```
+
+`git pull` 可以理解为先获取远程变化，再合并到当前分支。为了减少冲突，建议在提交本地改动后再拉取远程更新。
+
+如果只是想看看远程有没有新提交，可以先执行：
+
+```bash
+git fetch
+```
+
+`git fetch` 只下载远程历史，不会直接改动当前工作区。
+
+## 九、撤销和回退
+
+Git 的撤销命令要谨慎使用，先确认要撤销的是哪一层。
+
+撤销还没有暂存的文件修改：
+
+```bash
+git restore path/to/file
+```
+
+把文件从暂存区移回工作区：
+
+```bash
+git restore --staged path/to/file
+```
+
+查看提交历史：
+
+```bash
+git log --oneline
+```
+
+如果要创建一个新提交来反向撤销旧提交，使用：
+
+```bash
+git revert commit_id
+```
+
+`git revert` 适合已经推送到远程仓库的提交，因为它不会重写公共历史。
+
+## 十、常见日常工作流
+
+一个稳妥的个人项目流程可以这样走：
+
+```bash
+git status
+git pull
+git switch -c feature/new-article
+git status
+git diff
+git add src/content/blog/new-article.mdx
+git commit -m "Add new article"
+git switch main
+git merge feature/new-article
+git push
+```
+
+如果是小团队协作，推荐把功能开发放在独立分支上，再通过 Pull Request 或 Merge Request 合并。这样代码评审、构建检查和发布节奏都会更清晰。
+
+## 十一、给新手的几个习惯
+
+- 提交前先运行 `git status`，知道自己正在提交什么。
+- 提交信息写具体，避免只有 `update`。
+- 不要把密码、令牌、私钥提交进仓库。
+- 使用 `.gitignore` 忽略依赖目录、构建产物和本地环境文件。
+- 推送前运行项目测试或构建命令，减少把坏状态带到远程仓库。
+- 已经推送给别人使用的提交，优先用 `git revert` 撤销。
+
+Git 学起来像是在记命令，但真正掌握之后，它更像一种工作节奏：先观察状态，再整理修改，然后用清晰的提交保存进度。只要把这条节奏练熟，项目就会变得更可追踪、更容易协作，也更容易从错误里恢复。
