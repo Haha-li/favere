@@ -23,7 +23,7 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
 <html lang={SITE.locale}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta property="og:title" content={pageTitle} />
@@ -58,4 +58,3 @@ const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
     </div>
   </body>
 </html>
-
