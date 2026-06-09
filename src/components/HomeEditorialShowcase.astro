@@ -1,5 +1,6 @@
 ---
 import { Sparkles, Tag } from "@lucide/astro";
+import { PROFILE } from "@/consts";
 import type { BlogPost } from "@/lib/posts";
 import { getTags } from "@/lib/posts";
 
@@ -15,7 +16,7 @@ const allTags = getTags(posts);
 const totalTags = allTags.length;
 
 // Dynamically calculate days running since May 20, 2026
-const startDate = new Date("2026-05-20");
+const startDate = new Date(PROFILE.startedAt);
 const today = new Date();
 const diffTime = Math.abs(today.getTime() - startDate.getTime());
 const runDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
@@ -58,7 +59,7 @@ const stickyNotes = [
       <div class="h-2 w-2 rounded-full bg-mint animate-pulse"></div>
       <span class="text-[10px] font-bold tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase">Garden Pass</span>
     </div>
-    <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">ID: #05E95DD8</span>
+    <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">ID: {PROFILE.badgeId}</span>
   </div>
 
   <!-- Badge Content -->
@@ -67,8 +68,8 @@ const stickyNotes = [
     <div class="relative size-16 shrink-0 rounded-lg border-2 border-mint/20 p-0.5 dark:border-mint/30">
       <img
         class="size-full rounded object-cover"
-        src="https://cdn.ldstatic.com/user_avatar/linux.do/huhuya/144/641328_2.png"
-        alt="Avatar"
+        src={PROFILE.avatarUrl}
+        alt={`${PROFILE.displayName} avatar`}
       />
       <div class="absolute -bottom-1 -right-1 rounded-full bg-mint p-0.5 text-white">
         <Sparkles class="size-2.5" />
@@ -77,14 +78,14 @@ const stickyNotes = [
 
     <!-- Details -->
     <div class="flex flex-col justify-center">
-      <h3 class="font-serif text-lg font-bold text-zinc-950 dark:text-white">Huhuya</h3>
-      <p class="text-xs text-zinc-500 dark:text-zinc-400">数字花园馆长 / 记录者</p>
+      <h3 class="font-serif text-lg font-bold text-zinc-950 dark:text-white">{PROFILE.displayName}</h3>
+      <p class="text-xs text-zinc-500 dark:text-zinc-400">{PROFILE.role}</p>
       <div class="mt-2 flex items-center gap-1.5 text-[10px] text-mint font-semibold bg-mint/5 dark:bg-mint/10 px-2 py-0.5 rounded-full w-fit">
         <span class="relative flex h-1.5 w-1.5">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-mint opacity-75"></span>
           <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-mint"></span>
         </span>
-        浇灌数据库
+        {PROFILE.statusText}
       </div>
     </div>
   </div>
@@ -92,16 +93,18 @@ const stickyNotes = [
   <!-- Barcode decoration representing high-end badge -->
   <div class="mt-5 flex items-center justify-between gap-4">
     <div class="flex flex-col gap-1">
-      <!-- <div class="flex gap-1">
-        <a href="https://github.com" class="text-zinc-500 hover:text-mint dark:text-zinc-400 dark:hover:text-mint transition" aria-label="GitHub">
-          <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-          </svg>
+      <div class="flex gap-1">
+        <a
+          href={PROFILE.links.linuxDo.href}
+          class="focus-ring rounded-[4px] transition hover:opacity-80"
+          aria-label="Linux.do 主页"
+          title={PROFILE.links.linuxDo.title}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img class="size-4 rounded-[3px]" src={PROFILE.links.linuxDo.icon} alt="" />
         </a>
-        <a href="mailto:hello@example.com" class="text-zinc-500 hover:text-mint dark:text-zinc-400 dark:hover:text-mint transition" aria-label="Email">
-          <Mail class="size-4" />
-        </a>
-      </div> -->
+      </div>
     </div>
     <!-- Simple Barcode styling using CSS stripes -->
     <div class="flex h-6 items-end gap-[1.5px] opacity-20 dark:opacity-40" aria-hidden="true">

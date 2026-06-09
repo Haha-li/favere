@@ -1,5 +1,5 @@
 ---
-import { ExternalLink, Rss, Search } from "@lucide/astro";
+import { Rss, Search } from "@lucide/astro";
 import { NAV_ITEMS, SITE } from "@/consts";
 import ThemeToggle from "@/components/ThemeToggle.astro";
 
@@ -10,7 +10,7 @@ const currentPath = Astro.url.pathname;
   <div class="flex min-h-11 items-center justify-between gap-4">
     <!-- Brand Logo -->
     <a class="focus-ring flex items-center gap-2 rounded-full" href="/" aria-label={SITE.title}>
-      <span class="grid size-8 place-items-center rounded-full bg-zinc-950 text-xs font-black text-white dark:bg-white dark:text-zinc-950">H</span>
+      <span class="grid size-8 place-items-center rounded-full bg-zinc-950 text-xs font-black text-white dark:bg-white dark:text-zinc-950">{SITE.brandInitial}</span>
       <span class="text-xs font-semibold tracking-wide text-zinc-900 dark:text-zinc-100">{SITE.title}</span>
     </a>
 
@@ -39,9 +39,6 @@ const currentPath = Astro.url.pathname;
       <a class="focus-ring rounded-full p-1.5 text-zinc-500 transition hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white" href="/rss.xml" aria-label="RSS">
         <Rss class="size-4" />
       </a>
-      <!-- <a class="focus-ring rounded-full p-1.5 text-zinc-500 transition hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white" href={SITE.github} aria-label="GitHub">
-        <ExternalLink class="size-4" />
-      </a> -->
       <div class="w-[1px] h-4 bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
       <ThemeToggle />
     </div>

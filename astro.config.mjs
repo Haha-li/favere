@@ -6,6 +6,7 @@ import { defineConfig } from "astro/config";
 import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
+import { SITE } from "./src/consts.ts";
 
 const mode = process.env.NODE_ENV === "production" ? "production" : "development";
 const env = loadEnv(mode, process.cwd(), "");
@@ -21,7 +22,7 @@ const cloudflareDevOptimizeExcludes = [
 ];
 
 export default defineConfig({
-  site: "https://livvvi.com",
+  site: SITE.url,
   ...(enableCloudflareAdapter
     ? {
         adapter: cloudflare({
