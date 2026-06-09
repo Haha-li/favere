@@ -1,5 +1,5 @@
 export const SITE = {
-  title: "Favere Notes",
+  title: "huhuya Notes",
   description: "记录技术、产品、生活与长期主义的个人博客。",
   author: "Favere",
   url: "https://example.com",

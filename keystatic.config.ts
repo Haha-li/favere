@@ -23,7 +23,7 @@ export default config({
   storage,
   ui: {
     brand: {
-      name: 'Favere Notes 创意工作台',
+      name: 'huhuya Notes 创意工作台',
     }
   },
   collections: {
