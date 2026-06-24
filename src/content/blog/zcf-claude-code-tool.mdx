@@ -1,0 +1,106 @@
+---
+title: "Claude Code 配置工具推荐：ZCF"
+description: "ZCF 是一个面向 Claude Code 和 Codex 的零配置工作流工具，适合快速初始化环境、导入工作流、配置 MCP 与管理常用辅助工具。"
+pubDate: 2026-06-24
+tags: ["Claude Code", "ZCF", "AI Tools", "Workflow"]
+cover: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80"
+---
+
+如果你经常折腾 Claude Code，会发现真正麻烦的地方不只是安装本体，而是后面一整套配置：API、输出风格、工作流模板、MCP 服务、用量统计、代理路由，以及不同设备之间的同步。ZCF 正是为了解决这类重复配置问题出现的工具。
+
+ZCF 全名是 `Zero-Config Code Flow`，项目地址是 [UfoMiao/zcf](https://github.com/UfoMiao/zcf)，官方文档在 [zcf.ufomiao.com](https://zcf.ufomiao.com/zh-CN/getting-started/)。
+
+## ZCF 适合解决什么问题
+
+ZCF 不是一个新的模型，也不是替代 Claude Code 的编辑器。它更像是一个“配置总控台”，把 Claude Code 和 Codex 相关的常用初始化流程整合到一个 CLI 里。
+
+它比较适合这些场景：
+
+- 新电脑上快速配置 Claude Code。
+- 一次性导入工作流、输出风格和记忆配置。
+- 配置 API Key、官方登录或 Claude Code Router。
+- 安装常见 MCP 服务，例如 Context7、网页搜索、DeepWiki、Playwright、Serena。
+- 更新已有工作流模板，而不是手动复制文件。
+- 在 Claude Code 和 Codex 两套环境之间保持相对一致的使用习惯。
+
+简单说，如果你只是偶尔打开 Claude Code 问一两句，可能不需要它；但如果你把 Claude Code 当成日常开发工具，ZCF 会省掉不少环境整理时间。
+
+## 快速开始
+
+ZCF 不需要提前全局安装，直接用 `npx` 启动即可：
+
+```bash
+npx zcf
+```
+
+首次使用更推荐走交互式菜单。它会一步步询问你要配置 Claude Code 还是 Codex、使用什么语言、是否安装 Claude Code、如何处理已有配置、选择哪种 API 认证方式、是否安装 MCP 服务和状态栏工具。
+
+如果想直接完整初始化，也可以使用：
+
+```bash
+npx zcf init
+```
+
+或者简写：
+
+```bash
+npx zcf i
+```
+
+官方文档建议 Node.js 使用 `22.x` 或更高版本，运行前可以先检查：
+
+```bash
+node --version
+npm --version
+npx --version
+```
+
+## 常用命令
+
+日常真正会用到的命令不多，记住这几个就够了：
+
+```bash
+npx zcf          # 打开交互式菜单
+npx zcf i        # 完整初始化
+npx zcf u        # 更新工作流与模板
+npx zcf ccr      # 管理 Claude Code Router
+npx zcf ccu      # 查看 Claude Code 使用分析
+npx zcf cs       # 切换多套配置
+```
+
+如果已有环境，不建议每次都完整初始化。更稳的方式是先打开菜单，按需更新工作流、MCP 或 API 配置。
+
+## 值得关注的能力
+
+我觉得 ZCF 最值得关注的是三点。
+
+第一是工作流模板。它预置了六阶段工作流、功能开发工作流、BMad 敏捷流程、Spec 工作流和一些 Git 智能命令。对经常让 AI 参与开发的人来说，稳定的工作流比单次提示词更重要。
+
+第二是 MCP 集成。ZCF 可以帮你配置文档查询、网页搜索、GitHub 文档、浏览器控制和语义代码检索等服务。它不会让模型“突然变聪明”，但能让模型拿到更接近真实项目和最新文档的上下文。
+
+第三是多工具支持。它原本围绕 Claude Code 展开，但现在也支持 Codex。Codex 的配置文件、工作流目录和命令前缀不同，ZCF 可以帮你把两边的体验尽量统一起来。
+
+## 使用建议
+
+第一次用时不要急着全选。我的建议是先完成最小可用配置：
+
+1. 先跑 `npx zcf`。
+2. 选择 Claude Code。
+3. 配好认证方式。
+4. 只安装少量确定会用的 MCP。
+5. 导入一个主工作流和一种输出风格。
+
+等 Claude Code 能稳定工作后，再慢慢补充 CCR、ccusage、CCometixLine 或更多 MCP 服务。工具链越复杂，排障成本也越高。
+
+另外，如果你已经有自己的 `~/.claude` 配置，初始化时优先选择备份或合并，不要直接覆盖。ZCF 支持处理已有配置，但自己的长期配置仍然值得谨慎保护。
+
+## 总结
+
+ZCF 的价值不在于炫技，而在于把 Claude Code 周边那些零散配置收成一个入口。它适合经常换设备、频繁调整工作流、需要 MCP 或同时使用 Claude Code/Codex 的用户。
+
+如果你刚开始用 Claude Code，可以先把它当成初始化向导；如果你已经深度使用 Claude Code，ZCF 更像是一个配置管理和工作流维护工具。
+
+参考：
+
+- [ZCF 快速开始](https://zcf.ufomiao.com/zh-CN/getting-started/)
+- [UfoMiao/zcf GitHub 仓库](https://github.com/UfoMiao/zcf)
