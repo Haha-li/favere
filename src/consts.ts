@@ -29,7 +29,7 @@ export const MANIFEST = {
 
 export const PROFILE = {
   displayName: "Huhuya",
-  role: "数字花园馆长 / 记录者",
+  role: "AI操作者 / 记录者",
   statusText: "浇灌数据库",
   badgeId: "#05E95DD8",
   startedAt: "2026-05-20",
