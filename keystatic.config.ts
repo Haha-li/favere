@@ -1,4 +1,5 @@
 import { config, fields, collection } from '@keystatic/core';
+import { CMS, REPOSITORY } from './src/consts';
 
 const storageKind =
   import.meta.env.PROD
@@ -13,7 +14,7 @@ const storage =
   storageKind === 'github'
     ? ({
         kind: 'github',
-        repo: 'Haha-li/favere',
+        repo: REPOSITORY.github,
       } as const)
     : ({
         kind: 'local',
@@ -23,7 +24,7 @@ export default config({
   storage,
   ui: {
     brand: {
-      name: 'Favere Notes 创意工作台',
+      name: CMS.brandName,
     }
   },
   collections: {

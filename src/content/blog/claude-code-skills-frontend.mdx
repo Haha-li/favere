@@ -1,0 +1,137 @@
+---
+title: "Claude Code 前端开发：值得常备的 Skill 推荐"
+description: "Skill 是 Claude Code 里把重复流程收成一条命令的机制。这篇文章整理在前端开发流程里真正能用得上的现成 Skill，从代码审查、性能分析到启动验证，帮你不写一行配置就能上手。"
+pubDate: 2026-07-01
+tags: ["Claude Code", "Skill", "Frontend", "AI Tools"]
+cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1400&q=80"
+---
+
+写前端的时候，Claude Code 真正省时间的不是它一次性写对某段代码，而是它能不能稳定重复你那套流程：改完组件跑一遍构建、看一眼性能指标、对着 diff 做一次审查、把改动在真实浏览器里验证一下。这些事每件都不难，但每次都靠口述提示词去解释一遍，累。
+
+Skill 就是解决这个问题的。它把一段多步骤流程写成一个 `SKILL.md`，Claude 在合适的时候自动调用，或者你直接 `/skill-name` 触发。官方文档对 Skill 的定义很直白：当你反复粘贴同一段指令、同一个清单、同一套多步流程时，就该把它做成 Skill。
+
+这篇文章只聊**现成能用**的 Skill，不涉及自己写。适合把 Claude Code 当日常前端工具的人。
+
+## Skill 和普通提示词的区别
+
+理解 Skill 只需要知道三点：
+
+- **它按需加载**。Skill 的描述始终在上下文里，但完整内容只在被触发时才进入对话，不会一直占 token。
+- **它可以自动触发**。写好 `description`，Claude 会在你聊到相关话题时自己挑起来；也可以设 `disable-model-invocation: true` 只允许你手动 `/` 调用。
+- **它跨项目复用**。放在 `~/.claude/skills/` 下对你所有项目生效，放在项目 `.claude/skills/` 下只对本项目生效，通过 plugin 分发则随插件走。
+
+跟 CLAUDE.md 比，CLAUDE.md 适合写"这个项目的事实"（技术栈、约定、目录结构），Skill 适合写"要执行的动作"（怎么审查、怎么部署、怎么测性能）。两者互补。
+
+## 自带的 Skill：开箱即用
+
+Claude Code 内置了一批 bundled skill，不用安装，每个会话默认可用（除非用 `disableBundledSkills` 关掉）。前端开发里最常用到这几个。
+
+### `/code-review`：对着当前 diff 做审查
+
+改完一坨代码，与其自己一行行扫，不如让 Claude 对着工作区的 diff 走一遍。`/code-review` 会读取当前改动，按你指定的力度（low/medium/high）找问题：low/medium 偏重高置信度的真 bug，high 到 max 覆盖更广、可能包含一些不确定的怀疑。
+
+它有两个很有用的开关：
+
+- `--comment` 把发现作为 inline 评论贴到 PR 上，适合提 PR 前自己先过一轮。
+- `--fix` 直接把审查结论应用到工作区，适合你信任它的判断、想一次性收尾。
+
+前端场景下，它对常见陷阱很敏感：`useEffect` 依赖数组漏项、异步状态在卸载后更新、`key` 用了 index 导致列表错乱、CSS 选择器优先级冲突这类。改完组件顺手 `/code-review` 已经成了我的肌肉记忆。
+
+### `/simplify`：只做减法
+
+和 `/code-review` 不同，`/simplify` 不找 bug，只做"能不能更简单"的清理：复用已有逻辑、合并重复、提抽函数、把过深的抽象拍平、删掉没用的中间变量。
+
+前端代码特别容易长出过度抽象：三层 HOC、为了"以后扩展"留的 props、其实只有一个调用点的 hook。让 `/simplify` 过一遍，往往能砍掉一层壳，可读性立刻回来。它只动质量，不动行为，适合在功能跑通之后、提 PR 之前用一次。
+
+### `/run` 和 `/verify`：在真实 app 里看改动
+
+这是我最推荐的一组。前端开发里"测试通过"不等于"页面对了"，很多问题只有跑起来、点一下才看得到。这两个 skill 就是为了弥补这个缺口：
+
+- `/run` 启动你的 app 并驱动它，让 Claude 真的看到改动效果。
+- `/verify` 在 `/run` 基础上做一次确认：这个改动到底有没有做到它应该做的，不靠测试、不靠类型检查，靠运行起来观察。
+
+两者免配置就能用，会从 `package.json`、README、Makefile 推断启动方式。但对需要数据库、env 文件、多步构建的项目，推断会不准——这时用 `/run-skill-generator` 录一次启动配方，它会把这个项目怎么装、怎么起、需要哪些环境变量记成一个 per-project skill，之后 `/run`、`/verify` 以及任何 agent 都照配方走，不用每次重新摸索。
+
+前端项目（Vite、Astro、Next、Nuxt 都算）第一次用前跑一次 `/run-skill-generator`，之后改完组件直接 `/verify`，比手动开浏览器点点点省太多。注意这三个 skill 需要 Claude Code v2.1.145 或以上。
+
+### `/debug`：排查问题
+
+当页面表现和预期对不上，`/debug` 会带着一套排查思路进场：先复现、再定位、给出假设、逐个验证。它不是"帮我看看这个报错"那种浅层问答，而是真正驱动工具去查。配合 `/run` 用，Claude 能一边跑着应用一边排查，比你看静态代码猜原因高效。
+
+### `/loop`：轮询式任务
+
+适合需要重复检查的场景：每 5 分钟看一次构建状态、轮询某个 PR 的 CI 结果、定时跑一遍视觉回归。`/loop 5m /your-check` 就行，省掉间隔它还会自己决定节奏。前端里典型的用法是盯着一个不太稳的 e2e 测试，过了就通知你。
+
+## 值得额外装的现成 Skill
+
+Bundled skill 之外，社区和官方 marketplace 还有一些现成的、对前端特别有用的 Skill。下面这几个在本会话里都是真实可用的。
+
+### `web-perf`：Web 性能分析
+
+做前端绕不开性能。`web-perf` 通过 Chrome DevTools MCP 实测 Core Web Vitals——LCP、INP、CLS，外加 FCP、TBT、Speed Index 等补充指标。它不是读文档给你讲理论，而是真的把页面跑起来量。
+
+更实用的是它会给可执行的诊断：哪些资源阻塞渲染、哪条依赖链拖慢了 LCP、哪里发生了布局抖动、缓存配置有什么问题、可访问性有哪些缺口。改完一轮首屏，`/web-perf` 跑一遍，数字说话。对追求 Core Web Vitals 全绿的站点几乎是必备。
+
+### `cloudflare` 系列：边缘部署场景
+
+如果你的前端部署在 Cloudflare（Pages、Workers），这几个 Skill 值得常备：
+
+- `cloudflare`：平台总览，Workers、Pages、KV、D2、R2、AI、Vectorize 都覆盖，写部署相关代码时自动给最新文档而非陈旧记忆。
+- `wrangler`：Cloudflare CLI，部署、开发、管理都用它，写命令前自动对齐正确语法。
+- `workers-best-practices`：对照生产最佳实践审查 Worker 代码，专门盯流式响应、floating promise、全局状态、secrets、bindings 这些常见反模式。
+
+它们的特点是"偏向从 Cloudflare 官方文档检索而非预训练知识"，这意味着不会给你过时的 API。对边缘运行时的前端项目尤其有价值。
+
+### `skill-creator`：管理 Skill 的 Skill
+
+严格说这个不是给前端用的，但只要你开始依赖 Skill，迟早需要它。官方 marketplace 提供，安装一行：
+
+```text
+/plugin install skill-creator@claude-plugins-official
+```
+
+如果提示找不到插件，说明你的 marketplace 没加或过期了，先跑：
+
+```text
+/plugin marketplace update claude-plugins-official
+```
+
+或者没加过就：
+
+```text
+/plugin marketplace add anthropics/claude-plugins-official
+```
+
+装完 `/reload-plugins`，然后就能让它帮你评估现有 skill：写测试用例、在隔离子代理里跑、打分、做版本 A/B、调 `description` 的触发率。等你以后想自己写 Skill 时，它是质量保证。
+
+## 怎么装、装在哪
+
+Skill 的安装位置决定了谁能用它，官方文档给了一张很清楚的表：
+
+| 位置 | 路径 | 生效范围 |
+| :-- | :-- | :-- |
+| 个人 | `~/.claude/skills/<name>/SKILL.md` | 你自己的所有项目 |
+| 项目 | `.claude/skills/<name>/SKILL.md` | 仅当前项目 |
+| 插件 | `<plugin>/skills/<name>/SKILL.md` | 插件启用处 |
+
+对于现成 skill，最常见两条路：一是通过 `/plugin install` 从 marketplace 装，跟着插件走、用 `/plugin` 管理；二是直接 clone 别人写好的 skill 目录丢进 `~/.claude/skills/`，立即可用，改文件甚至当会话内生效，不用重启。
+
+bundled skill 那几个（`/code-review`、`/debug`、`/loop`、`/run`、`/verify`）则什么都不用装，开箱就在。
+
+## 用起来的建议
+
+第一次别贪多。我建议按这个顺序铺：
+
+1. 先把自带的 `/code-review` 和 `/simplify` 用熟——改完代码顺手过一遍，零成本。
+2. 给你的前端项目跑一次 `/run-skill-generator`，之后 `/verify` 就能稳定工作。
+3. 有性能诉求的站点加上 `web-perf`，改首屏前后各跑一次对比。
+4. 部署在 Cloudflare 的项目再装 `cloudflare` + `wrangler`。
+5. 等你开始想"这段流程我第三次手写了"，那时候再请出 `skill-creator` 把它固化成自己的 Skill。
+
+工具链越堆越重，排障成本也越高。Skill 的价值不在数量，在于把你真正反复做的事稳稳定下来——这一篇推荐的几个，基本能覆盖前端日常的"改、查、测、调"四件事。
+
+参考：
+
+- [Claude Code Skills 官方文档](https://code.claude.com/docs/en/skills)
+- [anthropics/skills 官方仓库](https://github.com/anthropics/skills)
+- [Agent Skills 开放标准](https://agentskills.io)
