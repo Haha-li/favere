@@ -1,349 +1,322 @@
 ---
-import { CalendarDays, Clock, ChevronLeft, ChevronRight } from "@lucide/astro";
-import HomeEditorialShowcase from "@/components/HomeEditorialShowcase.astro";
+import { ArrowRight, ArrowDown, Terminal, Mail, PenLine } from "@lucide/astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { SITE } from "@/consts";
+import { SITE, PROFILE } from "@/consts";
 import { getAllPosts, formatDate, getReadingMinutes } from "@/lib/posts";
 
 const posts = await getAllPosts();
+const featured = posts.slice(0, 3);
+const totalPosts = posts.length;
+const allTags = posts.flatMap((p) => p.data.tags);
+const totalTags = new Set(allTags).size;
+const startDate = new Date(PROFILE.startedAt);
+const today = new Date();
+const runDays = Math.max(1, Math.ceil(Math.abs(today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
 
-// Process posts to automatically assign growth stages based on length or tags
-const postsWithStage = posts.map((post) => {
-  const contentLen = post.body?.length ?? 0;
-  const tagsLower = post.data.tags.map((t) => t.toLowerCase());
+const roles = [PROFILE.role, "实验员", "长期主义记录者", "技术实践者"];
+const marquee = ["Astro", "TypeScript", "Tailwind", "Cloudflare", "React", "MDX", "Pagefind", "Keystatic", "Vite", "Shiki"];
+const linuxDo = PROFILE.links.linuxDo;
 
-  let stage: "seed" | "sprout" | "evergreen" = "evergreen";
-  let stageLabel = "🌳 常青树 Evergreen";
-  let stageColor = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+const twPhrases = [
+  "把想法做成工件，让它在迭代与连接中持续演进。",
+  "记录技术实践、工具链、产品观察与长期问题。",
+  "先写下来，再回头打磨，最后把它们连起来。"
+];
 
-  if (tagsLower.includes("seed") || contentLen < 300) {
-    stage = "seed";
-    stageLabel = "🌱 种子 Seed";
-    stageColor = "bg-amber-500/10 text-amber-600 dark:text-amber-400 dark:bg-amber-500/20";
-  } else if (tagsLower.includes("sprout") || contentLen < 1000) {
-    stage = "sprout";
-    stageLabel = "🌿 幼苗 Sprout";
-    stageColor = "bg-sky-500/10 text-sky-600 dark:text-sky-400 dark:bg-sky-500/20";
+const chapters = [
+  {
+    code: "DRAFT", title: "起草", body: "想法先写下来，哪怕粗糙。不追求一次写对，只求不被遗忘。在终端里敲一行、在便签上留一句，都算。",
+    quote: "想法就像原型，先做出来，有的会迭代成稳定版本，有的就当作实验记录。"
+  },
+  {
+    code: "ITER", title: "迭代", body: "回头打磨，补全上下文。把当时的为什么、踩过的坑、现在的修正都写进去，让一篇文章能够独立站住。",
+    quote: "实验室不做一次性的输出，而是让想法在持续迭代里慢慢成型。"
+  },
+  {
+    code: "LINK", title: "连接", body: "把相关想法连起来。双向链接、标签、归档都是路径，让后来的人——包括未来的自己——能从任意一个工件走到整间实验室。",
+    quote: "最有趣的事发生在想法与想法的连接处。"
   }
-
-  return {
-    ...post,
-    stage,
-    stageLabel,
-    stageColor,
-  };
-});
-
-// Filter up to 5 articles for the Carousel
-const carouselPosts = postsWithStage.slice(0, 5);
+];
 ---
 
-<BaseLayout title={SITE.title} description={SITE.description}>
-  <!-- Digital Workspace Canvas Container -->
-  <div class="py-10 sm:py-16">
-    <div class="page-shell">
-      <!-- Two-Column Workspace Layout -->
-      <div class="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[minmax(0,2.2fr)_minmax(280px,0.8fr)] items-start">
-        
-        <!-- Left: Workspace Main Canvas (Hero & Garden Seeds) -->
-        <div class="min-w-0 flex flex-col gap-8">
-          
-          <!-- Carousel Block (Max 5 posts) -->
-          <div class="group/carousel relative w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[2.39/1] overflow-hidden rounded-3xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-100 dark:bg-zinc-900 shadow-sm" id="featured-carousel">
-            <!-- Slides Track -->
-            <div class="flex w-full h-full transition-transform duration-500 ease-out" id="carousel-track">
-              {carouselPosts.map((post) => {
-                const coverImg = post.data.cover || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80";
-                return (
-                  <div class="w-full h-full shrink-0 relative">
-                    <!-- Background Cover -->
-                    <img class="absolute inset-0 w-full h-full object-cover select-none" src={coverImg} alt="" loading="lazy" />
-                    <!-- Scrim overlay -->
-                    <div class="absolute inset-0 bg-zinc-950/45 dark:bg-zinc-950/55 transition duration-300"></div>
-                    
-                    <!-- Content -->
-                    <div class="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10 text-white max-w-2xl">
-                      <div class="flex items-center gap-2 mb-2 sm:mb-3">
-                        <span class={`text-[9px] font-bold px-2.5 py-0.5 rounded-full ${post.stageColor.replace('bg-', 'bg-white/15 ').replace('text-', 'text-')}`}>
-                          {post.stageLabel}
-                        </span>
-                      </div>
-                      <h2 class="font-serif text-xl sm:text-2xl md:text-3xl font-black leading-tight drop-shadow-sm line-clamp-1">
-                        <a href={`/blog/${post.id}/`} class="hover:text-mint transition duration-200">
-                          {post.data.title}
-                        </a>
-                      </h2>
-                      <p class="mt-1.5 text-xs sm:text-sm text-white/80 line-clamp-2 drop-shadow-sm max-w-lg leading-relaxed hidden sm:block">
-                        {post.data.description}
-                      </p>
-                      <a href={`/blog/${post.id}/`} class="mt-4 w-fit rounded-lg bg-mint hover:bg-white hover:text-zinc-950 text-[10px] font-bold uppercase tracking-wider text-white px-4 py-2 transition duration-200 shadow-md">
-                        阅读文章
-                      </a>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+<BaseLayout title={SITE.title} description={SITE.description} theme="cyber">
 
-            <!-- Dots Navigation -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20" id="carousel-dots">
-              {carouselPosts.map((_, index) => (
-                <button 
-                  class:list={[
-                    "h-1.5 rounded-full bg-white/40 hover:bg-white transition-all duration-300 cursor-pointer",
-                    index === 0 ? "w-6 bg-mint!" : "w-1.5"
-                  ]}
-                  data-index={index}
-                  aria-label={`Slide ${index + 1}`}
-                />
+  <div class="cyber-scope page-shell relative">
+
+    <!-- ============ HERO ============ -->
+    <section class="relative flex min-h-[88vh] flex-col items-center justify-center py-24 text-center">
+      <!-- Terminal prompt -->
+      <div class="reveal font-mono text-xs text-cy-dim sm:text-sm">
+        <span class="text-cy-magenta">root</span><span class="text-cy-dim">@</span><span class="text-cy-cyan">favere</span><span class="text-cy-dim">:~$ </span>
+        <span class="text-cy-fg">./connect --lab</span>
+        <span class="cyber-cursor">▋</span>
+      </div>
+
+      <!-- Glitch name -->
+      <h1 class="reveal mt-8 font-mono text-6xl font-black uppercase tracking-tight sm:text-7xl md:text-8xl">
+        <span class="glitch parallax-name" data-text={PROFILE.displayName}>{PROFILE.displayName}</span>
+      </h1>
+
+      <!-- Rotating role -->
+      <div class="reveal mt-5 flex h-9 items-start justify-center overflow-hidden font-mono text-base text-cy-cyan sm:text-lg">
+        <span class="sr-only">角色：</span>
+        <span class="role-track flex flex-col items-center transition-transform duration-500" data-roles={JSON.stringify(roles)}>
+          <span class="block h-9 leading-9">&gt; {roles[0]}</span>
+        </span>
+      </div>
+
+      <!-- Typewriter tagline -->
+      <p class="reveal typewriter mt-6 min-h-16 max-w-xl text-pretty text-base leading-8 text-cy-dim sm:text-lg" data-phrases={JSON.stringify(twPhrases)}>
+        <span class="tw-text"></span><span class="tw-cursor cyber-cursor">▋</span>
+      </p>
+
+      <!-- CTAs -->
+      <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-3">
+        <a href="/lab/" class="neon-btn neon-btn-cyan group">
+          <Terminal class="size-4" />
+          进入实验室
+          <ArrowRight class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+        </a>
+        <a href="/blog/" class="neon-btn neon-btn-magenta">
+          <PenLine class="size-4" />
+          读文章
+        </a>
+      </div>
+
+      <!-- Scroll cue -->
+      <a href="#stats" class="reveal absolute bottom-8 left-1/2 -translate-x-1/2 text-cy-cyan/60 transition hover:text-cy-cyan" aria-label="向下滚动">
+        <ArrowDown class="size-5 animate-bounce" />
+      </a>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <section class="reveal relative -mx-4 mb-4 overflow-hidden border-y border-cy-line/40 py-4 sm:-mx-6 lg:-mx-8" aria-hidden="true">
+      <div class="marquee flex w-max whitespace-nowrap font-mono">
+        {[...marquee, ...marquee].map((word) => (
+          <span class="mr-8 inline-flex items-center gap-3 text-sm font-semibold tracking-wide text-cy-dim">
+            <span class="text-cy-magenta">//</span>
+            {word}
+          </span>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section id="stats" class="grid grid-cols-3 gap-4 py-12">
+      {[
+        { value: totalPosts, label: "工件", unit: "POSTS" },
+        { value: totalTags, label: "主题分类", unit: "TAGS" },
+        { value: runDays, label: "运转天数", unit: "DAYS" }
+      ].map((s, i) => (
+        <div class="reveal hud-card rounded-xl p-6 text-center font-mono" style={`transition-delay: ${i * 80}ms`}>
+          <div class="font-mono text-4xl font-black text-cy-cyan neon-cyan sm:text-5xl">{s.value}</div>
+          <div class="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-cy-dim">{s.label}</div>
+          <div class="mt-1 text-[9px] text-cy-magenta/70">// {s.unit}</div>
+        </div>
+      ))}
+    </section>
+
+    <!-- ============ FEATURED ============ -->
+    <section class="py-12">
+      <div class="reveal mb-8 flex items-end justify-between">
+        <div>
+          <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cy-magenta">// Featured</p>
+          <h2 class="mt-2 font-mono text-3xl font-bold text-cy-fg sm:text-4xl">最近的工件</h2>
+        </div>
+        <a href="/blog/" class="group inline-flex items-center gap-1.5 font-mono text-sm font-semibold text-cy-dim transition hover:text-cy-cyan">
+          查看全部
+          <ArrowRight class="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+        </a>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-3">
+        {featured.map((post, i) => (
+          <a
+            href={`/blog/${post.id}/`}
+            class="reveal cyber-card group relative flex flex-col overflow-hidden rounded-xl p-6"
+            style={`transition-delay: ${i * 80}ms`}
+          >
+            <div class="flex items-center justify-between font-mono text-[10px] text-cy-dim">
+              <span class="inline-flex items-center gap-1 font-semibold uppercase tracking-wider">
+                <PenLine class="size-3" />
+                {formatDate(post.data.pubDate)}
+              </span>
+              <span class="text-cy-cyan/70">{getReadingMinutes(post)}m</span>
+            </div>
+            <h3 class="mt-4 font-mono text-xl font-bold leading-snug text-cy-fg transition group-hover:text-cy-cyan">
+              {post.data.title}
+            </h3>
+            <p class="mt-3 line-clamp-3 text-sm leading-relaxed text-cy-dim">
+              {post.data.description}
+            </p>
+            <div class="mt-5 flex flex-wrap gap-1.5">
+              {post.data.tags.slice(0, 3).map((tag) => (
+                <span class="rounded-full border border-cy-line/50 px-2.5 py-0.5 font-mono text-[10px] font-medium text-cy-dim">
+                  {tag}
+                </span>
               ))}
             </div>
-
-            <!-- Arrow Buttons -->
-            <button
-              class="absolute left-4 top-1/2 -translate-y-1/2 size-8 rounded-full bg-white/10 hover:bg-white hover:text-zinc-950 text-white/85 flex items-center justify-center backdrop-blur-md transition-all duration-300 cursor-pointer shadow opacity-0 group-hover/carousel:opacity-100 border border-white/10"
-              id="carousel-prev"
-              aria-label="Previous Slide"
-            >
-              <ChevronLeft class="size-4" />
-            </button>
-            <button
-              class="absolute right-4 top-1/2 -translate-y-1/2 size-8 rounded-full bg-white/10 hover:bg-white hover:text-zinc-950 text-white/85 flex items-center justify-center backdrop-blur-md transition-all duration-300 cursor-pointer shadow opacity-0 group-hover/carousel:opacity-100 border border-white/10"
-              id="carousel-next"
-              aria-label="Next Slide"
-            >
-              <ChevronRight class="size-4" />
-            </button>
-          </div>
-
-          <!-- Seeds Filter controls -->
-          <div class="glass flex flex-col items-stretch gap-4 rounded-2xl p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <span class="text-xs font-bold tracking-[0.1em] text-zinc-400 uppercase">生命阶段筛选</span>
-            <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-1.5" id="stage-filters">
-              <button
-                class="filter-btn active focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 bg-white shadow-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 transition duration-200 cursor-pointer"
-                data-filter="all"
-              >
-                🌱🌿🌳 全部类别
-              </button>
-              <button
-                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
-                data-filter="seed"
-              >
-                🌱 种子 (Seed)
-              </button>
-              <button
-                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900/40 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
-                data-filter="sprout"
-              >
-                🌿 幼苗 (Sprout)
-              </button>
-              <button
-                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900/40 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
-                data-filter="evergreen"
-              >
-                🌳 常青树 (Evergreen)
-              </button>
+            <div class="mt-5 inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-cy-cyan opacity-0 transition duration-300 group-hover:opacity-100">
+              阅读 <ArrowRight class="size-3.5" />
             </div>
-          </div>
-
-          <!-- Seeds Cards Grid -->
-          <div class="grid gap-6 md:grid-cols-2" id="seeds-grid">
-            {postsWithStage.map((post) => (
-              <article
-                class="post-item group relative flex flex-col bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md hover:border-mint/60 hover:-translate-y-0.5"
-                data-stage={post.stage}
-              >
-                {post.data.cover && (
-                  <a class="block aspect-[16/9] overflow-hidden bg-zinc-100 dark:bg-zinc-950" href={`/blog/${post.id}/`} aria-label={post.data.title}>
-                    <img
-                      class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      src={post.data.cover}
-                      alt=""
-                      loading="lazy"
-                    />
-                  </a>
-                )}
-                
-                <div class="flex flex-1 flex-col p-6">
-                  <div class="flex items-center justify-between gap-4 flex-wrap">
-                    <div class="flex flex-wrap gap-1">
-                      {post.data.tags.slice(0, 2).map((tag) => (
-                        <a class="tag-chip text-[9px] px-2 py-0.5" href={`/tags/${encodeURIComponent(tag)}/`}>
-                          {tag}
-                        </a>
-                      ))}
-                    </div>
-                    <span class={`text-[9px] font-bold px-2 py-0.5 rounded-full ${post.stageColor}`}>
-                      {post.stageLabel}
-                    </span>
-                  </div>
-
-                  <h2 class="mt-4 font-serif font-bold text-lg sm:text-xl leading-tight text-zinc-900 dark:text-white">
-                    <a class="hover:text-mint transition" href={`/blog/${post.id}/`}>
-                      {post.data.title}
-                    </a>
-                  </h2>
-                  <p class="mt-3 line-clamp-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-                    {post.data.description}
-                  </p>
-
-                  <div class="mt-auto pt-5 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between text-[10px] text-zinc-400 dark:text-zinc-500">
-                    <span class="inline-flex items-center gap-1">
-                      <CalendarDays class="size-3.5" />
-                      {formatDate(post.data.pubDate)}
-                    </span>
-                    <span class="inline-flex items-center gap-1">
-                      <Clock class="size-3.5" />
-                      {getReadingMinutes(post)} 分钟
-                    </span>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          
-        </div>
-
-        <!-- Right: Workspace Side Panel (Badge, Stats, Notes, Graph) -->
-        <aside class="min-w-0 flex flex-col gap-6">
-          <HomeEditorialShowcase posts={posts} />
-        </aside>
-
+          </a>
+        ))}
       </div>
-    </div>
+    </section>
+
+    <!-- ============ NARRATIVE / SCROLL STORY ============ -->
+    <section class="py-16">
+      <div class="reveal mb-12">
+        <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cy-magenta">// Narrative</p>
+        <h2 class="mt-2 font-mono text-3xl font-bold text-cy-fg sm:text-4xl">实验的三段</h2>
+        <p class="mt-3 max-w-xl text-cy-dim">实验室不是一次性的输出，而是一个持续的过程。</p>
+      </div>
+
+      <div class="space-y-6">
+        {chapters.map((c, i) => (
+          <article class="chapter reveal grid gap-6 md:grid-cols-[0.9fr_1.1fr] md:items-start hud-card rounded-xl p-8" data-index={i}>
+            <div class="md:sticky md:top-28">
+              <div class="font-mono text-sm text-cy-magenta">0{i + 1} // {c.code}</div>
+              <h3 class="mt-2 font-mono text-2xl font-bold text-cy-fg sm:text-3xl">{c.title}</h3>
+              <p class="mt-4 leading-7 text-cy-dim">{c.body}</p>
+            </div>
+            <div class="hud-card rounded-lg p-5 font-mono text-xs leading-relaxed text-cy-dim">
+              <div><span class="text-cy-magenta">$</span> <span class="text-cy-cyan/80">lab</span> --{c.code.toLowerCase()} <span class="text-cy-dim">#{(i + 1).toString().padStart(4, "0")}</span></div>
+              <div class="mt-2 text-cy-cyan/70">+ status: growing</div>
+              <div class="mt-3 border-l-2 border-cy-magenta/60 pl-3 text-cy-fg/90">"{c.quote}"</div>
+              <div class="mt-3 text-cy-dim">links: <span class="text-cy-cyan">proto</span> → <span class="text-cy-cyan">iter</span> → <span class="text-cy-cyan">stable</span></div>
+              <div class="mt-2 flex items-center gap-2">
+                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-cy-cyan"></span>
+                <span class="text-cy-dim">tracking growth…</span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============ CTA / CONTACT ============ -->
+    <section class="py-16">
+      <div class="reveal cyber-terminal relative overflow-hidden rounded-2xl p-10 text-center sm:p-16">
+        <div class="font-mono text-xs text-cy-magenta">// establish_connection</div>
+        <h2 class="mt-4 font-mono text-3xl font-bold text-cy-fg sm:text-4xl">一起把想法做出来</h2>
+        <p class="mx-auto mt-4 max-w-md text-pretty leading-7 text-cy-dim">
+          欢迎来信交流技术、产品或长期主义的话题，或在 GitHub 上看看别的小实验。
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href={`mailto:${SITE.email}`} class="neon-btn neon-btn-cyan">
+            <Mail class="size-4" />
+            来信
+          </a>
+          <a href={SITE.github} class="neon-btn neon-btn-magenta" aria-label="GitHub">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+            </svg>
+            GitHub
+          </a>
+          {linuxDo && (
+            <a href={linuxDo.href} title={linuxDo.title} class="neon-btn neon-btn-ghost">
+              <img src={linuxDo.icon} alt="" class="size-4 rounded-sm" />
+              {linuxDo.title}
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+
   </div>
 </BaseLayout>
 
-<style>
-  /* Filter Active State Styling */
-  .filter-btn.active {
-    border-color: rgba(15, 159, 143, 0.7);
-    background-color: rgba(15, 159, 143, 0.05);
-    color: #0f9f8f;
-  }
-  
-  :global(.dark) .filter-btn.active {
-    background-color: rgba(15, 159, 143, 0.1);
-    color: #0f9f8f;
-  }
-  
-  /* Filter Transition Styles */
-  .post-item {
-    opacity: 1;
-    transform: scale(1);
-    transition: opacity 250ms ease-out, transform 250ms ease-out;
-  }
-  .post-item.filtered-out {
-    display: none;
-    opacity: 0;
-    transform: scale(0.95);
-  }
-</style>
-
 <script>
-  // Client-side filtering logic
-  const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
-  const items = document.querySelectorAll<HTMLElement>(".post-item");
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      // Toggle active states
-      buttons.forEach((b) => {
-        b.classList.remove("active", "border-zinc-200", "bg-white", "shadow-sm", "dark:border-zinc-800", "dark:bg-zinc-900");
-        b.classList.add("border-transparent", "bg-zinc-100/50", "text-zinc-600", "dark:bg-zinc-900", "dark:text-zinc-400");
-      });
-      
-      btn.classList.remove("border-transparent", "bg-zinc-100/50", "text-zinc-600", "dark:bg-zinc-900", "dark:text-zinc-400");
-      btn.classList.add("active", "border-zinc-200", "bg-white", "shadow-sm", "dark:border-zinc-800", "dark:bg-zinc-900");
-
-      const filter = btn.getAttribute("data-filter");
-
-      items.forEach((item) => {
-        const stage = item.getAttribute("data-stage");
-        if (filter === "all" || stage === filter) {
-          item.classList.remove("filtered-out");
-        } else {
-          item.classList.add("filtered-out");
+  // ---------- Scroll reveal (generic) ----------
+  const revealEls = document.querySelectorAll<HTMLElement>(".reveal");
+  if (revealEls.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            io.unobserve(entry.target);
+          }
         }
-      });
-    });
-  });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    revealEls.forEach((el) => io.observe(el));
+  }
 
-  // Carousel script logic
-  const track = document.querySelector<HTMLElement>("#carousel-track");
-  const dots = document.querySelectorAll<HTMLButtonElement>("#carousel-dots button");
-  const prevBtn = document.getElementById("carousel-prev");
-  const nextBtn = document.getElementById("carousel-next");
-  const carousel = document.getElementById("featured-carousel");
-
-  if (track && dots.length > 0) {
-    let currentIndex = 0;
-    const maxIndex = dots.length - 1;
-    let autoplayInterval: ReturnType<typeof setInterval>;
-
-    const updateCarousel = (index: number) => {
-      currentIndex = index;
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-      
-      // Update dots styles
-      dots.forEach((dot, i) => {
-        if (i === currentIndex) {
-          dot.classList.add("w-6", "bg-mint!");
-          dot.classList.remove("w-1.5");
-        } else {
-          dot.classList.remove("w-6", "bg-mint!");
-          dot.classList.add("w-1.5");
+  // ---------- Narrative chapter reveal (staggered) ----------
+  const chapters = document.querySelectorAll<HTMLElement>(".chapter");
+  if (chapters.length) {
+    const cio = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            cio.unobserve(entry.target);
+          }
         }
-      });
-    };
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -15% 0px" }
+    );
+    chapters.forEach((el) => cio.observe(el));
+  }
 
-    const nextSlide = () => {
-      const nextIndex = currentIndex === maxIndex ? 0 : currentIndex + 1;
-      updateCarousel(nextIndex);
+  // ---------- Rotating roles ----------
+  const roleTrack = document.querySelector<HTMLElement>(".role-track");
+  const roles: string[] = roleTrack ? JSON.parse(roleTrack.dataset.roles || "[]") : [];
+  if (roleTrack && roles.length > 1 && !prefersReduced) {
+    let idx = 0;
+    roleTrack.innerHTML = roles
+      .map((r) => `<span class="block h-9 leading-9">&gt; ${r}</span>`)
+      .join("");
+    roleTrack.style.transform = "translateY(0)";
+    const step = () => {
+      idx = (idx + 1) % roles.length;
+      roleTrack.style.transform = `translateY(-${idx * 2.25}rem)`;
     };
-
-    const prevSlide = () => {
-      const prevIndex = currentIndex === 0 ? maxIndex : currentIndex - 1;
-      updateCarousel(prevIndex);
-    };
-
-    // Event Listeners
-    prevBtn?.addEventListener("click", () => {
-      prevSlide();
-      resetAutoplay();
+    let timer = setInterval(step, 2600);
+    document.addEventListener("visibilitychange", () => {
+      clearInterval(timer);
+      if (!document.hidden) timer = setInterval(step, 2600);
     });
-    nextBtn?.addEventListener("click", () => {
-      nextSlide();
-      resetAutoplay();
-    });
+  }
 
-    dots.forEach((dot) => {
-      dot.addEventListener("click", () => {
-        const index = parseInt(dot.getAttribute("data-index") || "0", 10);
-        updateCarousel(index);
-        resetAutoplay();
-      });
-    });
-
-    // Autoplay logic
-    const startAutoplay = () => {
-      autoplayInterval = setInterval(nextSlide, 5000);
-    };
-
-    const stopAutoplay = () => {
-      clearInterval(autoplayInterval);
-    };
-
-    const resetAutoplay = () => {
-      stopAutoplay();
-      startAutoplay();
-    };
-
-    startAutoplay();
-
-    // Hover to Pause
-    carousel?.addEventListener("mouseenter", stopAutoplay);
-    carousel?.addEventListener("mouseleave", startAutoplay);
+  // ---------- Typewriter ----------
+  const tw = document.querySelector<HTMLElement>(".typewriter");
+  const twText = tw?.querySelector<HTMLElement>(".tw-text");
+  const phrases: string[] = tw ? JSON.parse(tw.dataset.phrases || "[]") : [];
+  if (twText && phrases.length) {
+    if (prefersReduced) {
+      twText.textContent = phrases[0];
+    } else {
+      let pi = 0, ci = 0, deleting = false;
+      const tick = () => {
+        const cur = phrases[pi];
+        if (!deleting) {
+          ci++;
+          twText.textContent = cur.slice(0, ci);
+          if (ci === cur.length) {
+            deleting = true;
+            setTimeout(tick, 1800);
+            return;
+          }
+          setTimeout(tick, 45 + Math.random() * 45);
+        } else {
+          ci--;
+          twText.textContent = cur.slice(0, ci);
+          if (ci === 0) {
+            deleting = false;
+            pi = (pi + 1) % phrases.length;
+            setTimeout(tick, 350);
+            return;
+          }
+          setTimeout(tick, 22);
+        }
+      };
+      setTimeout(tick, 700);
+    }
   }
 </script>

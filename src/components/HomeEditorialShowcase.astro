@@ -27,7 +27,7 @@ const stickyNotes = [
     position: "left-2 top-8 z-10 w-[72%] rotate-[-2.5deg]",
     pin: "bg-red-400 border-red-500",
     meta: "text-amber-800/60 dark:text-amber-200/40",
-    text: "想法就像种子，随手丢在泥土里，有的会长成常青树，有的就化作养分。最重要是把它写下来。",
+    text: "想法就像原型，先做出来，有的会迭代成稳定版本，有的就当作实验记录。最重要的是把它做出来。",
     label: "本地备用"
   },
   {
@@ -35,7 +35,7 @@ const stickyNotes = [
     position: "right-2 top-24 z-20 w-[68%] rotate-[3.5deg]",
     pin: "bg-emerald-400 border-emerald-500",
     meta: "text-emerald-800/60 dark:text-emerald-200/40",
-    text: "数字花园的特点：不做一次性的输出，而是让想法在交叉链接中持续生长。",
+    text: "实验室的特点：不做一次性的输出，而是让想法在迭代与连接中持续演进。",
     label: "本地备用"
   },
   {
@@ -43,13 +43,13 @@ const stickyNotes = [
     position: "left-4 top-44 z-30 w-[64%] rotate-[-1.5deg]",
     pin: "bg-rose-400 border-rose-500",
     meta: "text-rose-800/60 dark:text-rose-200/40",
-    text: "本周打理进度：重构了全站排版布局，明亮主题的暖白纸感极度舒适。",
+    text: "本周迭代进度：重构了全站排版布局，明亮主题的暖白纸感极度舒适。",
     label: "本地备用"
   }
 ];
 ---
 
-<!-- Gardener ID Badge -->
+<!-- Lab ID Badge -->
 <div class="glass relative overflow-hidden rounded-2xl p-6 transition duration-300 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-700">
   <div class="absolute top-0 right-0 h-20 w-20 bg-gradient-to-bl from-mint/10 to-transparent rounded-bl-full"></div>
   
@@ -57,7 +57,7 @@ const stickyNotes = [
   <div class="flex items-center justify-between border-b border-zinc-200/60 pb-4 dark:border-zinc-800/60">
     <div class="flex items-center gap-2">
       <div class="h-2 w-2 rounded-full bg-mint animate-pulse"></div>
-      <span class="text-[10px] font-bold tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase">Garden Pass</span>
+      <span class="text-[10px] font-bold tracking-[0.2em] text-zinc-400 dark:text-zinc-500 uppercase">Lab Pass</span>
     </div>
     <span class="text-[10px] font-mono text-zinc-400 dark:text-zinc-500">ID: {PROFILE.badgeId}</span>
   </div>
@@ -126,7 +126,7 @@ const stickyNotes = [
 <div class="glass grid grid-cols-3 divide-x divide-zinc-200/60 rounded-2xl p-5 text-center dark:divide-zinc-800/60">
   <div class="flex flex-col justify-center">
     <span class="text-2xl font-bold font-serif text-zinc-900 dark:text-white">{totalPosts}</span>
-    <span class="mt-1 text-[10px] tracking-[0.1em] text-zinc-400 uppercase">思想种子</span>
+    <span class="mt-1 text-[10px] tracking-[0.1em] text-zinc-400 uppercase">工件</span>
   </div>
   <div class="flex flex-col justify-center">
     <span class="text-2xl font-bold font-serif text-zinc-900 dark:text-white">{totalTags}</span>
@@ -134,7 +134,7 @@ const stickyNotes = [
   </div>
   <div class="flex flex-col justify-center">
     <span class="text-2xl font-bold font-serif text-zinc-900 dark:text-white">{runDays}</span>
-    <span class="mt-1 text-[10px] tracking-[0.1em] text-zinc-400 uppercase">打理天数</span>
+    <span class="mt-1 text-[10px] tracking-[0.1em] text-zinc-400 uppercase">运转天数</span>
   </div>
 </div>
 
@@ -142,7 +142,7 @@ const stickyNotes = [
 <div class="relative min-h-[290px] w-full p-2">
   <!-- Pushpin / Header -->
   <div class="mb-4 flex items-center gap-1.5">
-    <span class="text-xs font-bold tracking-[0.15em] text-zinc-400 dark:text-zinc-500 uppercase">随想便签 Board</span>
+    <span class="text-xs font-bold tracking-[0.15em] text-zinc-400 dark:text-zinc-500 uppercase">实验日志 Board</span>
   </div>
 
   {

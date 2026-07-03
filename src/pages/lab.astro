@@ -1,0 +1,348 @@
+---
+import { CalendarDays, Clock, ChevronLeft, ChevronRight } from "@lucide/astro";
+import HomeEditorialShowcase from "@/components/HomeEditorialShowcase.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getAllPosts, formatDate, getReadingMinutes } from "@/lib/posts";
+
+const posts = await getAllPosts();
+
+// Process posts to automatically assign stages based on length or tags
+const postsWithStage = posts.map((post) => {
+  const contentLen = post.body?.length ?? 0;
+  const tagsLower = post.data.tags.map((t) => t.toLowerCase());
+
+  let stage: "proto" | "iter" | "stable" = "stable";
+  let stageLabel = "● 稳定 Stable";
+  let stageColor = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+
+  if (tagsLower.includes("proto") || contentLen < 300) {
+    stage = "proto";
+    stageLabel = "◇ 原型 Proto";
+    stageColor = "bg-amber-500/10 text-amber-600 dark:text-amber-400 dark:bg-amber-500/20";
+  } else if (tagsLower.includes("iter") || contentLen < 1000) {
+    stage = "iter";
+    stageLabel = "◆ 迭代 Iter";
+    stageColor = "bg-sky-500/10 text-sky-600 dark:text-sky-400 dark:bg-sky-500/20";
+  }
+
+  return {
+    ...post,
+    stage,
+    stageLabel,
+    stageColor,
+  };
+});
+
+// Filter up to 5 articles for the Carousel
+const carouselPosts = postsWithStage.slice(0, 5);
+---
+
+<BaseLayout title="实验室" description="按工件状态分类的实验与文章。" theme="cyber">
+  <!-- Digital Workspace Canvas Container -->
+  <div class="py-10 sm:py-16">
+    <div class="page-shell">
+      <!-- Two-Column Workspace Layout -->
+      <div class="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[minmax(0,2.2fr)_minmax(280px,0.8fr)] items-start">
+        
+        <!-- Left: Workspace Main Canvas (Hero & Lab Items) -->
+        <div class="min-w-0 flex flex-col gap-8">
+          
+          <!-- Carousel Block (Max 5 posts) -->
+          <div class="group/carousel relative w-full aspect-[16/9] sm:aspect-[21/9] lg:aspect-[2.39/1] overflow-hidden rounded-3xl border border-zinc-200/60 dark:border-zinc-800/80 bg-zinc-100 dark:bg-zinc-900 shadow-sm" id="featured-carousel">
+            <!-- Slides Track -->
+            <div class="flex w-full h-full transition-transform duration-500 ease-out" id="carousel-track">
+              {carouselPosts.map((post) => {
+                const coverImg = post.data.cover || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80";
+                return (
+                  <div class="w-full h-full shrink-0 relative">
+                    <!-- Background Cover -->
+                    <img class="absolute inset-0 w-full h-full object-cover select-none" src={coverImg} alt="" loading="lazy" />
+                    <!-- Scrim overlay -->
+                    <div class="absolute inset-0 bg-zinc-950/45 dark:bg-zinc-950/55 transition duration-300"></div>
+                    
+                    <!-- Content -->
+                    <div class="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10 text-white max-w-2xl">
+                      <div class="flex items-center gap-2 mb-2 sm:mb-3">
+                        <span class={`text-[9px] font-bold px-2.5 py-0.5 rounded-full ${post.stageColor.replace('bg-', 'bg-white/15 ').replace('text-', 'text-')}`}>
+                          {post.stageLabel}
+                        </span>
+                      </div>
+                      <h2 class="font-serif text-xl sm:text-2xl md:text-3xl font-black leading-tight drop-shadow-sm line-clamp-1">
+                        <a href={`/blog/${post.id}/`} class="hover:text-mint transition duration-200">
+                          {post.data.title}
+                        </a>
+                      </h2>
+                      <p class="mt-1.5 text-xs sm:text-sm text-white/80 line-clamp-2 drop-shadow-sm max-w-lg leading-relaxed hidden sm:block">
+                        {post.data.description}
+                      </p>
+                      <a href={`/blog/${post.id}/`} class="mt-4 w-fit rounded-lg bg-mint hover:bg-white hover:text-zinc-950 text-[10px] font-bold uppercase tracking-wider text-white px-4 py-2 transition duration-200 shadow-md">
+                        阅读文章
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <!-- Dots Navigation -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20" id="carousel-dots">
+              {carouselPosts.map((_, index) => (
+                <button 
+                  class:list={[
+                    "h-1.5 rounded-full bg-white/40 hover:bg-white transition-all duration-300 cursor-pointer",
+                    index === 0 ? "w-6 bg-mint!" : "w-1.5"
+                  ]}
+                  data-index={index}
+                  aria-label={`Slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <!-- Arrow Buttons -->
+            <button
+              class="absolute left-4 top-1/2 -translate-y-1/2 size-8 rounded-full bg-white/10 hover:bg-white hover:text-zinc-950 text-white/85 flex items-center justify-center backdrop-blur-md transition-all duration-300 cursor-pointer shadow opacity-0 group-hover/carousel:opacity-100 border border-white/10"
+              id="carousel-prev"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft class="size-4" />
+            </button>
+            <button
+              class="absolute right-4 top-1/2 -translate-y-1/2 size-8 rounded-full bg-white/10 hover:bg-white hover:text-zinc-950 text-white/85 flex items-center justify-center backdrop-blur-md transition-all duration-300 cursor-pointer shadow opacity-0 group-hover/carousel:opacity-100 border border-white/10"
+              id="carousel-next"
+              aria-label="Next Slide"
+            >
+              <ChevronRight class="size-4" />
+            </button>
+          </div>
+
+          <!-- Items Filter controls -->
+          <div class="glass flex flex-col items-stretch gap-4 rounded-2xl p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <span class="text-xs font-bold tracking-[0.1em] text-zinc-400 uppercase">状态筛选</span>
+            <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-1.5" id="stage-filters">
+              <button
+                class="filter-btn active focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-zinc-200 bg-white shadow-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 transition duration-200 cursor-pointer"
+                data-filter="all"
+              >
+                ◇◆● 全部类别
+              </button>
+              <button
+                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
+                data-filter="proto"
+              >
+                ◇ 原型 (Proto)
+              </button>
+              <button
+                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900/40 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
+                data-filter="iter"
+              >
+                ◆ 迭代 (Iter)
+              </button>
+              <button
+                class="filter-btn focus-ring inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-transparent bg-zinc-100/50 text-zinc-600 dark:bg-zinc-900/40 hover:border-zinc-200 dark:hover:border-zinc-800 transition duration-200 cursor-pointer"
+                data-filter="stable"
+              >
+                ● 稳定 (Stable)
+              </button>
+            </div>
+          </div>
+
+          <!-- Items Cards Grid -->
+          <div class="grid gap-6 md:grid-cols-2" id="items-grid">
+            {postsWithStage.map((post) => (
+              <article
+                class="post-item group relative flex flex-col bg-white/70 dark:bg-zinc-900/60 backdrop-blur-sm border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md hover:border-mint/60 hover:-translate-y-0.5"
+                data-stage={post.stage}
+              >
+                {post.data.cover && (
+                  <a class="block aspect-[16/9] overflow-hidden bg-zinc-100 dark:bg-zinc-950" href={`/blog/${post.id}/`} aria-label={post.data.title}>
+                    <img
+                      class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      src={post.data.cover}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </a>
+                )}
+                
+                <div class="flex flex-1 flex-col p-6">
+                  <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex flex-wrap gap-1">
+                      {post.data.tags.slice(0, 2).map((tag) => (
+                        <a class="tag-chip text-[9px] px-2 py-0.5" href={`/tags/${encodeURIComponent(tag)}/`}>
+                          {tag}
+                        </a>
+                      ))}
+                    </div>
+                    <span class={`text-[9px] font-bold px-2 py-0.5 rounded-full ${post.stageColor}`}>
+                      {post.stageLabel}
+                    </span>
+                  </div>
+
+                  <h2 class="mt-4 font-serif font-bold text-lg sm:text-xl leading-tight text-zinc-900 dark:text-white">
+                    <a class="hover:text-mint transition" href={`/blog/${post.id}/`}>
+                      {post.data.title}
+                    </a>
+                  </h2>
+                  <p class="mt-3 line-clamp-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                    {post.data.description}
+                  </p>
+
+                  <div class="mt-auto pt-5 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between text-[10px] text-zinc-400 dark:text-zinc-500">
+                    <span class="inline-flex items-center gap-1">
+                      <CalendarDays class="size-3.5" />
+                      {formatDate(post.data.pubDate)}
+                    </span>
+                    <span class="inline-flex items-center gap-1">
+                      <Clock class="size-3.5" />
+                      {getReadingMinutes(post)} 分钟
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+          
+        </div>
+
+        <!-- Right: Workspace Side Panel (Badge, Stats, Notes, Graph) -->
+        <aside class="min-w-0 flex flex-col gap-6">
+          <HomeEditorialShowcase posts={posts} />
+        </aside>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Filter Active State Styling */
+  .filter-btn.active {
+    border-color: rgba(15, 159, 143, 0.7);
+    background-color: rgba(15, 159, 143, 0.05);
+    color: #0f9f8f;
+  }
+  
+  :global(.dark) .filter-btn.active {
+    background-color: rgba(15, 159, 143, 0.1);
+    color: #0f9f8f;
+  }
+  
+  /* Filter Transition Styles */
+  .post-item {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 250ms ease-out, transform 250ms ease-out;
+  }
+  .post-item.filtered-out {
+    display: none;
+    opacity: 0;
+    transform: scale(0.95);
+  }
+</style>
+
+<script>
+  // Client-side filtering logic
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+  const items = document.querySelectorAll<HTMLElement>(".post-item");
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Toggle active states
+      buttons.forEach((b) => {
+        b.classList.remove("active", "border-zinc-200", "bg-white", "shadow-sm", "dark:border-zinc-800", "dark:bg-zinc-900");
+        b.classList.add("border-transparent", "bg-zinc-100/50", "text-zinc-600", "dark:bg-zinc-900", "dark:text-zinc-400");
+      });
+      
+      btn.classList.remove("border-transparent", "bg-zinc-100/50", "text-zinc-600", "dark:bg-zinc-900", "dark:text-zinc-400");
+      btn.classList.add("active", "border-zinc-200", "bg-white", "shadow-sm", "dark:border-zinc-800", "dark:bg-zinc-900");
+
+      const filter = btn.getAttribute("data-filter");
+
+      items.forEach((item) => {
+        const stage = item.getAttribute("data-stage");
+        if (filter === "all" || stage === filter) {
+          item.classList.remove("filtered-out");
+        } else {
+          item.classList.add("filtered-out");
+        }
+      });
+    });
+  });
+
+  // Carousel script logic
+  const track = document.querySelector<HTMLElement>("#carousel-track");
+  const dots = document.querySelectorAll<HTMLButtonElement>("#carousel-dots button");
+  const prevBtn = document.getElementById("carousel-prev");
+  const nextBtn = document.getElementById("carousel-next");
+  const carousel = document.getElementById("featured-carousel");
+
+  if (track && dots.length > 0) {
+    let currentIndex = 0;
+    const maxIndex = dots.length - 1;
+    let autoplayInterval: ReturnType<typeof setInterval>;
+
+    const updateCarousel = (index: number) => {
+      currentIndex = index;
+      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      
+      // Update dots styles
+      dots.forEach((dot, i) => {
+        if (i === currentIndex) {
+          dot.classList.add("w-6", "bg-mint!");
+          dot.classList.remove("w-1.5");
+        } else {
+          dot.classList.remove("w-6", "bg-mint!");
+          dot.classList.add("w-1.5");
+        }
+      });
+    };
+
+    const nextSlide = () => {
+      const nextIndex = currentIndex === maxIndex ? 0 : currentIndex + 1;
+      updateCarousel(nextIndex);
+    };
+
+    const prevSlide = () => {
+      const prevIndex = currentIndex === 0 ? maxIndex : currentIndex - 1;
+      updateCarousel(prevIndex);
+    };
+
+    // Event Listeners
+    prevBtn?.addEventListener("click", () => {
+      prevSlide();
+      resetAutoplay();
+    });
+    nextBtn?.addEventListener("click", () => {
+      nextSlide();
+      resetAutoplay();
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        const index = parseInt(dot.getAttribute("data-index") || "0", 10);
+        updateCarousel(index);
+        resetAutoplay();
+      });
+    });
+
+    // Autoplay logic
+    const startAutoplay = () => {
+      autoplayInterval = setInterval(nextSlide, 5000);
+    };
+
+    const stopAutoplay = () => {
+      clearInterval(autoplayInterval);
+    };
+
+    const resetAutoplay = () => {
+      stopAutoplay();
+      startAutoplay();
+    };
+
+    startAutoplay();
+
+    // Hover to Pause
+    carousel?.addEventListener("mouseenter", stopAutoplay);
+    carousel?.addEventListener("mouseleave", startAutoplay);
+  }
+</script>

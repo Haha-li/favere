@@ -1,0 +1,140 @@
+---
+interface Props {
+  variant?: "full" | "read";
+}
+const { variant = "full" } = Astro.props;
+const isRead = variant === "read";
+---
+
+<div class="cyber-bg" aria-hidden="true" data-variant={variant}>
+  {!isRead && <canvas id="cyber-canvas"></canvas>}
+  <div class="cyber-grid-floor" data-static={isRead ? "true" : "false"}></div>
+  {!isRead && <div class="cyber-scanlines"></div>}
+  <div class="cyber-vignette"></div>
+</div>
+
+<script>
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const bg = document.querySelector<HTMLElement>(".cyber-bg");
+  const variant = bg?.dataset.variant ?? "full";
+
+  // ---------- Mouse parallax CSS vars (shared with grid floor) ----------
+  if (!prefersReduced) {
+    const root = document.documentElement;
+    let pendingRaf = false;
+    let lastMx = 0, lastMy = 0;
+    window.addEventListener("mousemove", (e) => {
+      lastMx = (e.clientX / window.innerWidth) * 2 - 1;
+      lastMy = (e.clientY / window.innerHeight) * 2 - 1;
+      if (pendingRaf) return;
+      pendingRaf = true;
+      requestAnimationFrame(() => {
+        root.style.setProperty("--mx", lastMx.toFixed(3));
+        root.style.setProperty("--my", lastMy.toFixed(3));
+        pendingRaf = false;
+      });
+    });
+  }
+
+  // ---------- Particle / network background (full variant only) ----------
+  if (variant === "full") {
+    const canvas = document.getElementById("cyber-canvas") as HTMLCanvasElement | null;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        let w = 0, h = 0, dpr = 1;
+        const particles: { x: number; y: number; z: number; vx: number; vy: number; c: "cyan" | "magenta" }[] = [];
+        const mouse = { x: 0, y: 0 };
+        let raf = 0;
+
+        const resize = () => {
+          dpr = Math.min(window.devicePixelRatio || 1, 2);
+          w = window.innerWidth;
+          h = window.innerHeight;
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          canvas.style.width = w + "px";
+          canvas.style.height = h + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const count = Math.min(120, Math.max(40, Math.floor((w * h) / 14000)));
+          particles.length = 0;
+          for (let i = 0; i < count; i++) {
+            particles.push({
+              x: Math.random() * w,
+              y: Math.random() * h,
+              z: Math.random() * 0.8 + 0.2,
+              vx: (Math.random() - 0.5) * 0.18,
+              vy: (Math.random() - 0.5) * 0.18,
+              c: Math.random() < 0.72 ? "cyan" : "magenta"
+            });
+          }
+          if (prefersReduced) draw();
+        };
+
+        const draw = () => {
+          ctx.clearRect(0, 0, w, h);
+          const mx = mouse.x, my = mouse.y;
+          const pts = particles.map((p) => ({
+            px: p.x + mx * 34 * p.z,
+            py: p.y + my * 34 * p.z,
+            p
+          }));
+          for (let i = 0; i < pts.length; i++) {
+            for (let j = i + 1; j < pts.length; j++) {
+              const a = pts[i], b = pts[j];
+              const dx = a.px - b.px, dy = a.py - b.py;
+              const d = Math.hypot(dx, dy);
+              if (d < 128) {
+                ctx.strokeStyle = `rgba(0,240,255,${0.13 * (1 - d / 128)})`;
+                ctx.lineWidth = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(a.px, a.py);
+                ctx.lineTo(b.px, b.py);
+                ctx.stroke();
+              }
+            }
+          }
+          for (const { px, py, p } of pts) {
+            const r = p.z * 1.9;
+            const color = p.c === "cyan" ? "rgba(0,240,255,0.85)" : "rgba(255,45,149,0.85)";
+            ctx.beginPath();
+            ctx.arc(px, py, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = color;
+            ctx.fill();
+          }
+          ctx.shadowBlur = 0;
+        };
+
+        const loop = () => {
+          for (const p of particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < -10) p.x = w + 10;
+            else if (p.x > w + 10) p.x = -10;
+            if (p.y < -10) p.y = h + 10;
+            else if (p.y > h + 10) p.y = -10;
+          }
+          draw();
+          raf = requestAnimationFrame(loop);
+        };
+
+        const start = () => { if (!raf) raf = requestAnimationFrame(loop); };
+        const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+
+        resize();
+        window.addEventListener("resize", resize);
+        window.addEventListener("mousemove", (e) => {
+          mouse.x = (e.clientX / w) * 2 - 1;
+          mouse.y = (e.clientY / h) * 2 - 1;
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) stop();
+          else if (!prefersReduced) start();
+        });
+        if (!prefersReduced) start();
+      }
+    }
+  }
+</script>

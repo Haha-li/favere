@@ -30,7 +30,7 @@ export const MANIFEST = {
 export const PROFILE = {
   displayName: "Huhuya",
   role: "AI操作者 / 记录者",
-  statusText: "浇灌数据库",
+  statusText: "运行实验中",
   badgeId: "#05E95DD8",
   startedAt: "2026-05-20",
   avatarUrl: "https://cdn.ldstatic.com/user_avatar/linux.do/huhuya/144/641328_2.png",
@@ -45,7 +45,7 @@ export const PROFILE = {
 
 export const NAV_ITEMS = [
   { href: "/", label: "首页" },
-  { href: "/garden/", label: "花园" },
+  { href: "/lab/", label: "实验" },
   { href: "/blog/", label: "文章" },
   { href: "/tags/", label: "标签" },
   { href: "/archive/", label: "归档" },

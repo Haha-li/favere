@@ -17,7 +17,7 @@ const { post } = Astro.props as { post: BlogPost };
 const { Content, headings } = await render(post);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover}>
+<BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover} theme="cyber-read">
   <article class="page-shell py-12">
     <header class="mx-auto max-w-3xl">
       <div class="flex flex-wrap gap-2">
