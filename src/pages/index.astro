@@ -1,5 +1,5 @@
 ---
-import { ArrowRight, ArrowDown, Terminal, Mail, PenLine } from "@lucide/astro";
+import { ArrowRight, ArrowDown, Terminal, PenLine } from "@lucide/astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { SITE, PROFILE } from "@/consts";
 import { getAllPosts, formatDate, getReadingMinutes } from "@/lib/posts";
@@ -43,8 +43,57 @@ const chapters = [
 
   <div class="cyber-scope page-shell relative">
 
+    <script is:inline>
+      try {
+        if (!sessionStorage.getItem("booted") &&
+            !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.documentElement.classList.add("booting");
+        }
+      } catch (_) {}
+    </script>
+
+    <div class="boot-screen" aria-hidden="true">
+      <pre class="boot-lines">
+        <span class="boot-line" data-full="INITIALIZING FAVERE_OS"></span>
+        <span class="boot-line" data-full="LOADING MODULES...... OK"></span>
+        <span class="boot-line" data-full="ESTABLISHING UPLINK... OK"></span>
+        <span class="boot-line" data-full="WELCOME"></span>
+      </pre>
+    </div>
+
+    <nav class="section-dots" aria-label="页面章节">
+      <a class="section-dot" href="#hero" data-target="hero"><span class="section-dot-label">HERO</span></a>
+      <a class="section-dot" href="#marquee" data-target="marquee"><span class="section-dot-label">MARQUEE</span></a>
+      <a class="section-dot" href="#stats" data-target="stats"><span class="section-dot-label">STATS</span></a>
+      <a class="section-dot" href="#featured" data-target="featured"><span class="section-dot-label">FEATURED</span></a>
+      <a class="section-dot" href="#narrative" data-target="narrative"><span class="section-dot-label">NARRATIVE</span></a>
+      <a class="section-dot" href="#cta" data-target="cta"><span class="section-dot-label">CTA</span></a>
+    </nav>
+
     <!-- ============ HERO ============ -->
-    <section class="relative flex min-h-[88vh] flex-col items-center justify-center py-24 text-center">
+    <section id="hero" class="relative flex min-h-[88vh] flex-col items-center justify-center py-24 text-center">
+      <!-- HUD ornaments (decorative, desktop-only) -->
+      <div class="hero-topbar" aria-hidden="true">
+        <span>// FAVERE_OS v0.1</span>
+        <span><span class="hero-dot"></span>SYS ONLINE</span>
+        <span>SECTOR 07</span>
+      </div>
+      <span class="hero-corner tl" aria-hidden="true"></span>
+      <span class="hero-corner tr" aria-hidden="true"></span>
+      <span class="hero-corner bl" aria-hidden="true"></span>
+      <span class="hero-corner br" aria-hidden="true"></span>
+      <div class="hero-rail left" aria-hidden="true">
+        <span>01</span><span>SYS</span><span>0x4F9A</span><span>TRACK</span>
+      </div>
+      <div class="hero-rail right" aria-hidden="true">
+        <span>LIVE</span><span>07</span><span>0xC1F2</span><span>OK</span>
+      </div>
+      <span class="hero-chip" style="top:22%;left:12%" aria-hidden="true">// 0x4F9A</span>
+      <span class="hero-chip" style="top:30%;right:14%;animation-delay:-3s" aria-hidden="true">NODE-07</span>
+      <span class="hero-chip" style="bottom:26%;left:16%;animation-delay:-5s" aria-hidden="true">proto→iter</span>
+      <span class="hero-chip" style="top:46%;left:8%;animation-delay:-1.5s" aria-hidden="true">0xC1F2</span>
+      <span class="hero-chip" style="bottom:34%;right:10%;animation-delay:-6.5s" aria-hidden="true">// uplink</span>
+
       <!-- Terminal prompt -->
       <div class="reveal font-mono text-xs text-cy-dim sm:text-sm">
         <span class="text-cy-magenta">root</span><span class="text-cy-dim">@</span><span class="text-cy-cyan">favere</span><span class="text-cy-dim">:~$ </span>
@@ -90,7 +139,7 @@ const chapters = [
     </section>
 
     <!-- ============ MARQUEE ============ -->
-    <section class="reveal relative -mx-4 mb-4 overflow-hidden border-y border-cy-line/40 py-4 sm:-mx-6 lg:-mx-8" aria-hidden="true">
+    <section id="marquee" class="reveal relative -mx-4 mb-4 overflow-hidden border-y border-cy-line/40 py-4 sm:-mx-6 lg:-mx-8" aria-hidden="true">
       <div class="marquee flex w-max whitespace-nowrap font-mono">
         {[...marquee, ...marquee].map((word) => (
           <span class="mr-8 inline-flex items-center gap-3 text-sm font-semibold tracking-wide text-cy-dim">
@@ -117,7 +166,7 @@ const chapters = [
     </section>
 
     <!-- ============ FEATURED ============ -->
-    <section class="py-12">
+    <section id="featured" class="py-12">
       <div class="reveal mb-8 flex items-end justify-between">
         <div>
           <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cy-magenta">// Featured</p>
@@ -165,7 +214,7 @@ const chapters = [
     </section>
 
     <!-- ============ NARRATIVE / SCROLL STORY ============ -->
-    <section class="py-16">
+    <section id="narrative" class="py-16">
       <div class="reveal mb-12">
         <p class="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-cy-magenta">// Narrative</p>
         <h2 class="mt-2 font-mono text-3xl font-bold text-cy-fg sm:text-4xl">实验的三段</h2>
@@ -196,18 +245,14 @@ const chapters = [
     </section>
 
     <!-- ============ CTA / CONTACT ============ -->
-    <section class="py-16">
+    <section id="cta" class="py-16">
       <div class="reveal cyber-terminal relative overflow-hidden rounded-2xl p-10 text-center sm:p-16">
         <div class="font-mono text-xs text-cy-magenta">// establish_connection</div>
         <h2 class="mt-4 font-mono text-3xl font-bold text-cy-fg sm:text-4xl">一起把想法做出来</h2>
         <p class="mx-auto mt-4 max-w-md text-pretty leading-7 text-cy-dim">
-          欢迎来信交流技术、产品或长期主义的话题，或在 GitHub 上看看别的小实验。
+          欢迎交流技术、产品或长期主义的话题，或在 GitHub 上看看别的小实验。
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <a href={`mailto:${SITE.email}`} class="neon-btn neon-btn-cyan">
-            <Mail class="size-4" />
-            来信
-          </a>
           <a href={SITE.github} class="neon-btn neon-btn-magenta" aria-label="GitHub">
             <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
@@ -224,11 +269,78 @@ const chapters = [
       </div>
     </section>
 
+    <!-- ============ FIXED BOTTOM STATUS BAR ============ -->
+    <div class="cyber-statusbar" aria-hidden="true">
+      <span><b>SYS</b>●OK</span>
+      <span data-cpu>CPU 12%</span>
+      <span data-net>NET 3.2k/s</span>
+      <span>UPLINK●STABLE</span>
+      <span class="ml-auto" data-clock>00:00:00</span>
+    </div>
+
   </div>
 </BaseLayout>
 
 <script>
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- Boot screen (only if .booting was set by the inline guard) ----------
+  const bootScreen = document.querySelector<HTMLElement>(".boot-screen");
+  if (document.documentElement.classList.contains("booting") && bootScreen) {
+    const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const typeLine = (el: HTMLElement) =>
+      new Promise<void>((res) => {
+        const full = el.dataset.full || "";
+        el.textContent = "";
+        el.classList.add("is-shown");
+        let i = 0;
+        const tick = () => {
+          el.textContent = full.slice(0, i);
+          i++;
+          if (i > full.length) {
+            el.classList.add("is-done");
+            res();
+            return;
+          }
+          setTimeout(tick, prefersReduced ? 0 : 26);
+        };
+        tick();
+      });
+    (async () => {
+      const lines = Array.from(bootScreen.querySelectorAll<HTMLElement>(".boot-line"));
+      for (const l of lines) {
+        await typeLine(l);
+        await wait(prefersReduced ? 0 : 140);
+      }
+      await wait(prefersReduced ? 0 : 420);
+      document.documentElement.classList.add("is-boot-done");
+      await wait(500);
+      document.documentElement.classList.remove("booting");
+      document.documentElement.classList.remove("is-boot-done");
+      try { sessionStorage.setItem("booted", "1"); } catch (_) {}
+    })();
+  }
+
+  // ---------- Section dots: highlight current section ----------
+  const dots = Array.from(document.querySelectorAll<HTMLElement>(".section-dot"));
+  if (dots.length) {
+    const byTarget = new Map(dots.map((d) => [d.dataset.target, d]));
+    const sections = Array.from(byTarget.keys())
+      .map((id) => document.getElementById(id!))
+      .filter((el): el is HTMLElement => !!el);
+    const setActive = (id: string | null) => {
+      dots.forEach((d) => d.classList.toggle("is-active", d.dataset.target === id));
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive((e.target as HTMLElement).id);
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => io.observe(s));
+  }
 
   // ---------- Scroll reveal (generic) ----------
   const revealEls = document.querySelectorAll<HTMLElement>(".reveal");
@@ -285,8 +397,7 @@ const chapters = [
   }
 
   // ---------- Typewriter ----------
-  const tw = document.querySelector<HTMLElement>(".typewriter");
-  const twText = tw?.querySelector<HTMLElement>(".tw-text");
+  const tw = document.querySelector<HTMLElement>(".typewriter");  const twText = tw?.querySelector<HTMLElement>(".tw-text");
   const phrases: string[] = tw ? JSON.parse(tw.dataset.phrases || "[]") : [];
   if (twText && phrases.length) {
     if (prefersReduced) {
@@ -318,5 +429,26 @@ const chapters = [
       };
       setTimeout(tick, 700);
     }
+  }
+
+  // ---------- Bottom status bar: live clock + telemetry flutter ----------
+  const clock = document.querySelector<HTMLElement>("[data-clock]");
+  const cpu = document.querySelector<HTMLElement>("[data-cpu]");
+  const net = document.querySelector<HTMLElement>("[data-net]");
+  if (clock) {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const tickClock = () => {
+      const d = new Date();
+      clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    tickClock();
+    setInterval(tickClock, 1000);
+  }
+  if (cpu && net && !prefersReduced) {
+    const flutter = () => {
+      cpu.textContent = `CPU ${Math.floor(8 + Math.random() * 20)}%`;
+      net.textContent = `NET ${(2 + Math.random() * 3).toFixed(1)}k/s`;
+    };
+    setInterval(flutter, 2000);
   }
 </script>

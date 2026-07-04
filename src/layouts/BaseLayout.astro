@@ -2,6 +2,8 @@
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
 import CyberBackground from "@/components/CyberBackground.astro";
+import ScrollProgress from "@/components/ScrollProgress.astro";
+import CommandPalette from "@/components/CommandPalette.astro";
 import { SITE } from "@/consts";
 import "@/styles/global.css";
 
@@ -67,12 +69,14 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
     }
 
     <div class:list={["relative z-10 flex flex-col min-h-screen", isCyber ? "cyber-scope" : ""]}>
+      <ScrollProgress />
       <Header />
       <main id="main-content" class="flex-grow">
         <slot />
       </main>
       <Footer />
     </div>
+    <CommandPalette />
 
     <script>
       (() => {
@@ -81,42 +85,24 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!fine || reduced) return;
 
-        // Comet trail: head tracks the pointer, each dot follows the previous,
-        // so the tail stretches when moving fast and contracts when still.
-        const N = 10;
-        const dots: { el: HTMLElement; x: number; y: number; opa: number }[] = [];
-        const initX = window.innerWidth / 2;
-        const initY = window.innerHeight / 2;
-        for (let i = 0; i < N; i++) {
-          const el = document.createElement("div");
-          el.className = "cursor-comet-dot";
-          const t = 1 - i / N;                 // 1 at head → 0 at tail
-          const size = Math.max(2, 8 * t);
-          const opa = Math.max(0.06, 0.95 * t);
-          el.style.width = size + "px";
-          el.style.height = size + "px";
-          el.style.opacity = "0";             // hidden until first mousemove
-          document.body.append(el);
-          dots.push({ el, x: initX, y: initY, opa });
+        // HUD corner-bracket reticle: 1:1 instant tracking, no rAF loop.
+        const reticle = document.createElement("div");
+        reticle.className = "cursor-reticle";
+        for (const c of ["tl", "tr", "bl", "br"]) {
+          const s = document.createElement("span");
+          s.className = c;
+          reticle.appendChild(s);
         }
-        // Hide native cursor only once the custom one is in place.
+        document.body.append(reticle);
         document.documentElement.classList.add("has-custom-cursor");
 
-        let mx = initX;
-        let my = initY;
         let shown = false;
-        const show = () => {
-          shown = true;
-          for (const d of dots) d.el.style.opacity = String(d.opa);
-        };
-        const hide = () => {
-          shown = false;
-          for (const d of dots) d.el.style.opacity = "0";
-        };
+        const show = () => { shown = true; reticle.style.opacity = "1"; };
+        const hide = () => { shown = false; reticle.style.opacity = "0"; };
 
+        // Translate in mousemove (coalesced to once per frame by the browser).
         window.addEventListener("mousemove", (e) => {
-          mx = e.clientX;
-          my = e.clientY;
+          reticle.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
           if (!shown) show();
         }, { passive: true });
 
@@ -126,36 +112,12 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
         const hoverSel = "a, button, input, textarea, select, label, summary, [role='button']";
         document.addEventListener("mouseover", (e) => {
           const t = e.target;
-          if (t instanceof Element && t.closest(hoverSel)) document.documentElement.classList.add("cursor-hover");
+          if (t instanceof Element && t.closest(hoverSel)) reticle.classList.add("is-hover");
         });
         document.addEventListener("mouseout", (e) => {
           const t = e.target;
-          if (t instanceof Element && t.closest(hoverSel)) document.documentElement.classList.remove("cursor-hover");
+          if (t instanceof Element && t.closest(hoverSel)) reticle.classList.remove("is-hover");
         });
-
-        let raf = 0;
-        const loop = () => {
-          const head = dots[0];
-          head.x += (mx - head.x) * 0.55;
-          head.y += (my - head.y) * 0.55;
-          for (let i = 1; i < N; i++) {
-            const prev = dots[i - 1];
-            const cur = dots[i];
-            cur.x += (prev.x - cur.x) * 0.32;
-            cur.y += (prev.y - cur.y) * 0.32;
-          }
-          for (const d of dots) {
-            d.el.style.transform = `translate(${d.x}px, ${d.y}px) translate(-50%, -50%)`;
-          }
-          raf = requestAnimationFrame(loop);
-        };
-        const start = () => { if (!raf) raf = requestAnimationFrame(loop); };
-        const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
-        document.addEventListener("visibilitychange", () => {
-          if (document.hidden) stop();
-          else start();
-        });
-        start();
       })();
     </script>
   </body>

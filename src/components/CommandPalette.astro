@@ -1,0 +1,140 @@
+---
+import { NAV_ITEMS } from "@/consts";
+
+const commands = [
+  ...NAV_ITEMS.map((n) => ({ ...n, alias: "" })),
+  { href: "/search/", label: "搜索", alias: "search" },
+  { href: "/rss.xml", label: "RSS 订阅", alias: "rss feed" }
+];
+---
+
+<div class="cmd-palette" id="cmd-palette" aria-hidden="true" role="dialog" aria-label="命令面板">
+  <div class="cmd-backdrop" data-cmd-close></div>
+  <div class="cmd-box">
+    <div class="cmd-input-row">
+      <span class="cmd-prompt" aria-hidden="true">&gt;</span>
+      <input
+        class="cmd-input"
+        id="cmd-input"
+        type="text"
+        placeholder="输入命令或搜索…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd class="cmd-esc">ESC</kbd>
+    </div>
+    <ul class="cmd-list" id="cmd-list" role="listbox">
+      {commands.map((c) => (
+        <li
+          class="cmd-item"
+          data-href={c.href}
+          data-label={c.label}
+          data-alias={c.alias}
+          role="option"
+        >
+          <span class="cmd-item-label">{c.label}</span>
+          <span class="cmd-item-href">{c.href}</span>
+        </li>
+      ))}
+    </ul>
+    <div class="cmd-footer">
+      <span>↑↓ 选择</span><span>↵ 跳转</span><span>esc 关闭</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const palette = document.getElementById("cmd-palette");
+    const input = document.getElementById("cmd-input") as HTMLInputElement | null;
+    const list = document.getElementById("cmd-list");
+    if (!palette || !input || !list) return;
+    const items = Array.from(list.querySelectorAll<HTMLLIElement>(".cmd-item"));
+    let active = 0;
+
+    const visibleItems = () => items.filter((it) => !it.hidden);
+    const setActive = () => {
+      const vis = visibleItems();
+      vis.forEach((it, i) => it.classList.toggle("is-active", i === active));
+      const cur = vis[active];
+      if (cur) cur.scrollIntoView({ block: "nearest" });
+    };
+    const filter = (q: string) => {
+      const ql = q.trim().toLowerCase();
+      items.forEach((it) => {
+        const label = (it.dataset.label || "").toLowerCase();
+        const alias = (it.dataset.alias || "").toLowerCase();
+        it.hidden = !(!ql || label.includes(ql) || alias.includes(ql));
+      });
+      active = 0;
+      setActive();
+    };
+    const open = () => {
+      palette.classList.add("is-open");
+      palette.setAttribute("aria-hidden", "false");
+      input.value = "";
+      filter("");
+      requestAnimationFrame(() => input.focus());
+    };
+    const close = () => {
+      palette.classList.remove("is-open");
+      palette.setAttribute("aria-hidden", "true");
+    };
+    const go = (it: HTMLLIElement | undefined) => {
+      if (!it) return;
+      const href = it.dataset.href;
+      if (href) window.location.href = href;
+    };
+
+    document.addEventListener("keydown", (e) => {
+      const isOpen = palette.classList.contains("is-open");
+      const isTyping = /input|textarea|select/i.test(
+        (document.activeElement?.tagName || "")
+      );
+      if ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        isOpen ? close() : open();
+        return;
+      }
+      if (e.key === "/" && !isOpen && !isTyping) {
+        e.preventDefault();
+        open();
+        return;
+      }
+      if (e.key === "Escape" && isOpen) {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if (!isOpen) return;
+      const vis = visibleItems();
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        active = vis.length ? (active + 1) % vis.length : 0;
+        setActive();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        active = vis.length ? (active - 1 + vis.length) % vis.length : 0;
+        setActive();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        go(vis[active]);
+      }
+    });
+    input.addEventListener("input", () => filter(input.value));
+    list.addEventListener("click", (e) => {
+      const it = (e.target as Element)?.closest(".cmd-item") as HTMLLIElement | null;
+      if (it) go(it);
+    });
+    palette.querySelector("[data-cmd-close]")?.addEventListener("click", close);
+    // Any element marked [data-cmd-open] (e.g. the header search button) opens
+    // the palette. Keeps href="/search/" as a no-JS fallback.
+    document.addEventListener("click", (e) => {
+      const t = (e.target as Element)?.closest("[data-cmd-open]");
+      if (t) {
+        e.preventDefault();
+        open();
+      }
+    });
+  })();
+</script>
