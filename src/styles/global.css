@@ -16,6 +16,14 @@
   --color-mint: #0f9f8f;
   --color-coral: #e45d48;
   --color-skyline: #2563eb;
+  /* Cyberpunk palette — references the runtime --cy- vars defined below,
+     so the cy- text, bg, and border utilities follow the light/dark toggle. */
+  --color-cy-fg: var(--cy-fg);
+  --color-cy-dim: var(--cy-dim);
+  --color-cy-cyan: var(--cy-cyan);
+  --color-cy-magenta: var(--cy-magenta);
+  --color-cy-purple: var(--cy-purple);
+  --color-cy-line: var(--cy-line);
 }
 
 @layer base {
@@ -122,6 +130,9 @@
   --cy-magenta: #ff2d95;
   --cy-purple: #a855f7;
   --cy-line: rgba(0, 240, 255, 0.22);
+  /* rgb triplets for canvas particle rendering (consumed by CyberBackground) */
+  --cy-cyan-rgb: 0, 240, 255;
+  --cy-magenta-rgb: 255, 45, 149;
   --mx: 0;
   --my: 0;
 }
@@ -388,5 +399,144 @@ section:hover .marquee { animation-play-state: paused; }
   .marquee { animation: none; }
   .cyber-grid-floor { animation: none; }
   .parallax-name { transform: none; transition: none; }
+}
+
+/* ============================================================
+   Light cyberpunk variant — "daylight synthwave"
+   Active when <html> has no .dark (toggle off, or system prefers
+   light and no stored preference). Only overrides the hardcoded
+   dark surfaces; everything else is driven by the --cy-* vars
+   above. Dark mode is unchanged.
+   ============================================================ */
+:root:not(.dark) {
+  --cy-bg: #e8f1ff;
+  --cy-fg: #0b1a2f;
+  --cy-dim: #5b6b85;
+  --cy-cyan: #00b8d4;
+  --cy-magenta: #d11e6e;
+  --cy-purple: #7c3aed;
+  --cy-line: rgba(0, 120, 145, 0.28);
+  --cy-cyan-rgb: 0, 184, 212;
+  --cy-magenta-rgb: 209, 30, 110;
+}
+
+:root:not(.dark) .cyber-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 58, 237, 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(0, 184, 212, 0.10), transparent 60%),
+    var(--cy-bg);
+}
+:root:not(.dark) .cyber-bg[data-variant="read"] {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0, 184, 212, 0.05), transparent 70%),
+    var(--cy-bg);
+}
+:root:not(.dark) .cyber-grid-floor {
+  background-image:
+    linear-gradient(to right, rgba(0, 150, 175, 0.30) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 150, 175, 0.30) 1px, transparent 1px);
+}
+:root:not(.dark) .cyber-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(11, 26, 47, 0.05) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+}
+:root:not(.dark) .cyber-vignette {
+  box-shadow: inset 0 0 18vh rgba(180, 210, 240, 0.55);
+}
+:root:not(.dark) .neon-btn {
+  background: rgba(255, 255, 255, 0.55);
+}
+:root:not(.dark) .neon-btn-cyan {
+  border-color: rgba(0, 184, 212, 0.6);
+  color: var(--cy-cyan);
+  box-shadow: 0 0 0 rgba(0, 184, 212, 0), inset 0 0 12px rgba(0, 184, 212, 0.06);
+}
+:root:not(.dark) .neon-btn-cyan:hover {
+  background: rgba(0, 184, 212, 0.14);
+  box-shadow: 0 0 22px rgba(0, 184, 212, 0.40), inset 0 0 18px rgba(0, 184, 212, 0.14);
+  text-shadow: 0 0 8px rgba(0, 184, 212, 0.7);
+}
+:root:not(.dark) .neon-btn-magenta {
+  border-color: rgba(209, 30, 110, 0.6);
+  color: var(--cy-magenta);
+  box-shadow: inset 0 0 12px rgba(209, 30, 110, 0.06);
+}
+:root:not(.dark) .neon-btn-magenta:hover {
+  background: rgba(209, 30, 110, 0.14);
+  box-shadow: 0 0 22px rgba(209, 30, 110, 0.40), inset 0 0 18px rgba(209, 30, 110, 0.14);
+  text-shadow: 0 0 8px rgba(209, 30, 110, 0.7);
+}
+:root:not(.dark) .neon-btn-ghost:hover {
+  color: var(--cy-cyan);
+  border-color: rgba(0, 184, 212, 0.5);
+  box-shadow: 0 0 16px rgba(0, 184, 212, 0.22);
+}
+:root:not(.dark) .hud-card,
+:root:not(.dark) .cyber-card {
+  background: linear-gradient(180deg, rgba(0, 184, 212, 0.05), rgba(255, 255, 255, 0.65));
+  border-color: var(--cy-line);
+}
+:root:not(.dark) .hud-card::before,
+:root:not(.dark) .hud-card::after,
+:root:not(.dark) .cyber-card::before,
+:root:not(.dark) .cyber-card::after {
+  border-color: var(--cy-cyan);
+}
+:root:not(.dark) .cyber-card:hover {
+  border-color: rgba(0, 184, 212, 0.7);
+  box-shadow: 0 0 28px rgba(0, 184, 212, 0.20), inset 0 0 24px rgba(0, 184, 212, 0.05);
+}
+:root:not(.dark) .cyber-terminal {
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, rgba(209, 30, 110, 0.10), transparent 70%),
+    linear-gradient(180deg, rgba(0, 184, 212, 0.05), rgba(255, 255, 255, 0.55));
+  border: 1px solid var(--cy-line);
+  box-shadow: 0 0 40px rgba(0, 184, 212, 0.10), inset 0 0 30px rgba(184, 210, 240, 0.4);
+}
+:root:not(.dark) .glitch {
+  text-shadow: 0 0 14px rgba(0, 184, 212, 0.30);
+}
+:root:not(.dark) .neon-cyan {
+  text-shadow: 0 0 14px rgba(0, 184, 212, 0.30);
+}
+
+/* ============================================================
+   Custom neon cursor — comet trail of fading dots.
+   Enabled only on fine pointers (mouse) without reduced-motion;
+   the JS in BaseLayout appends the dots and adds .has-custom-cursor
+   to <html>, which hides the native cursor. Colors follow --cy-* vars;
+   html.cursor-hover (over interactive elements) shifts the trail to magenta.
+   ============================================================ */
+.cursor-comet-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 9999px;
+  background: var(--cy-cyan);
+  box-shadow: 0 0 8px var(--cy-cyan);
+  opacity: 0;
+  will-change: transform;
+}
+html.cursor-hover .cursor-comet-dot {
+  background: var(--cy-magenta);
+  box-shadow: 0 0 8px var(--cy-magenta);
+}
+html.has-custom-cursor,
+html.has-custom-cursor a,
+html.has-custom-cursor button,
+html.has-custom-cursor input,
+html.has-custom-cursor textarea,
+html.has-custom-cursor select,
+html.has-custom-cursor label,
+html.has-custom-cursor summary,
+html.has-custom-cursor [role="button"] {
+  cursor: none;
 }
 

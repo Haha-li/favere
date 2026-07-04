@@ -1,6 +1,7 @@
 ---
 import { Rss, Search } from "@lucide/astro";
 import { NAV_ITEMS, SITE } from "@/consts";
+import ThemeToggle from "@/components/ThemeToggle.astro";
 
 const currentPath = Astro.url.pathname;
 ---
@@ -38,6 +39,7 @@ const currentPath = Astro.url.pathname;
       <a class="focus-ring rounded-full p-1.5 text-zinc-500 transition hover:bg-white hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white" href="/rss.xml" aria-label="RSS">
         <Rss class="size-4" />
       </a>
+      <ThemeToggle />
     </div>
   </div>
 

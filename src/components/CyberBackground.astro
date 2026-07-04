@@ -47,6 +47,20 @@ const isRead = variant === "read";
         const mouse = { x: 0, y: 0 };
         let raf = 0;
 
+        // Particle colors follow the active theme (dark = bright neon,
+        // light = deeper cyan/magenta so they stay visible on a pale bg).
+        let cyanRgb = "0, 240, 255";
+        let magentaRgb = "255, 45, 149";
+        const readColors = () => {
+          const cs = getComputedStyle(document.documentElement);
+          const c = (cs.getPropertyValue("--cy-cyan-rgb") || "").trim();
+          const m = (cs.getPropertyValue("--cy-magenta-rgb") || "").trim();
+          if (c) cyanRgb = c;
+          if (m) magentaRgb = m;
+        };
+        readColors();
+        document.addEventListener("theme:change", readColors);
+
         const resize = () => {
           dpr = Math.min(window.devicePixelRatio || 1, 2);
           w = window.innerWidth;
@@ -85,7 +99,7 @@ const isRead = variant === "read";
               const dx = a.px - b.px, dy = a.py - b.py;
               const d = Math.hypot(dx, dy);
               if (d < 128) {
-                ctx.strokeStyle = `rgba(0,240,255,${0.13 * (1 - d / 128)})`;
+                ctx.strokeStyle = `rgba(${cyanRgb},${0.13 * (1 - d / 128)})`;
                 ctx.lineWidth = 0.6;
                 ctx.beginPath();
                 ctx.moveTo(a.px, a.py);
@@ -96,7 +110,7 @@ const isRead = variant === "read";
           }
           for (const { px, py, p } of pts) {
             const r = p.z * 1.9;
-            const color = p.c === "cyan" ? "rgba(0,240,255,0.85)" : "rgba(255,45,149,0.85)";
+            const color = p.c === "cyan" ? `rgba(${cyanRgb},0.85)` : `rgba(${magentaRgb},0.85)`;
             ctx.beginPath();
             ctx.arc(px, py, r, 0, Math.PI * 2);
             ctx.fillStyle = color;

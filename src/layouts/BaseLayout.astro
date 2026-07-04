@@ -42,8 +42,8 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
     <title>{pageTitle}</title>
     <script is:inline>
       const storedTheme = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (storedTheme === "dark" || (!storedTheme && prefersDark)) {
+      // Dark is the site default; only an explicit "light" choice opts out.
+      if (storedTheme !== "light") {
         document.documentElement.classList.add("dark");
       }
     </script>
@@ -51,7 +51,7 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
   <body class:list={[
     "relative overflow-x-hidden min-h-screen antialiased",
     isCyber
-      ? "cyber dark bg-[var(--cy-bg)] text-zinc-50"
+      ? "cyber bg-[var(--cy-bg)] text-[var(--cy-fg)]"
       : "bg-paper bg-dot-grid text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50"
   ]}>
     {
@@ -73,5 +73,90 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
       </main>
       <Footer />
     </div>
+
+    <script>
+      (() => {
+        // Only on fine pointers (mouse) and when motion is allowed.
+        const fine = window.matchMedia("(pointer: fine)").matches;
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!fine || reduced) return;
+
+        // Comet trail: head tracks the pointer, each dot follows the previous,
+        // so the tail stretches when moving fast and contracts when still.
+        const N = 10;
+        const dots: { el: HTMLElement; x: number; y: number; opa: number }[] = [];
+        const initX = window.innerWidth / 2;
+        const initY = window.innerHeight / 2;
+        for (let i = 0; i < N; i++) {
+          const el = document.createElement("div");
+          el.className = "cursor-comet-dot";
+          const t = 1 - i / N;                 // 1 at head → 0 at tail
+          const size = Math.max(2, 8 * t);
+          const opa = Math.max(0.06, 0.95 * t);
+          el.style.width = size + "px";
+          el.style.height = size + "px";
+          el.style.opacity = "0";             // hidden until first mousemove
+          document.body.append(el);
+          dots.push({ el, x: initX, y: initY, opa });
+        }
+        // Hide native cursor only once the custom one is in place.
+        document.documentElement.classList.add("has-custom-cursor");
+
+        let mx = initX;
+        let my = initY;
+        let shown = false;
+        const show = () => {
+          shown = true;
+          for (const d of dots) d.el.style.opacity = String(d.opa);
+        };
+        const hide = () => {
+          shown = false;
+          for (const d of dots) d.el.style.opacity = "0";
+        };
+
+        window.addEventListener("mousemove", (e) => {
+          mx = e.clientX;
+          my = e.clientY;
+          if (!shown) show();
+        }, { passive: true });
+
+        document.addEventListener("mouseleave", hide);
+        document.addEventListener("mouseenter", show);
+
+        const hoverSel = "a, button, input, textarea, select, label, summary, [role='button']";
+        document.addEventListener("mouseover", (e) => {
+          const t = e.target;
+          if (t instanceof Element && t.closest(hoverSel)) document.documentElement.classList.add("cursor-hover");
+        });
+        document.addEventListener("mouseout", (e) => {
+          const t = e.target;
+          if (t instanceof Element && t.closest(hoverSel)) document.documentElement.classList.remove("cursor-hover");
+        });
+
+        let raf = 0;
+        const loop = () => {
+          const head = dots[0];
+          head.x += (mx - head.x) * 0.55;
+          head.y += (my - head.y) * 0.55;
+          for (let i = 1; i < N; i++) {
+            const prev = dots[i - 1];
+            const cur = dots[i];
+            cur.x += (prev.x - cur.x) * 0.32;
+            cur.y += (prev.y - cur.y) * 0.32;
+          }
+          for (const d of dots) {
+            d.el.style.transform = `translate(${d.x}px, ${d.y}px) translate(-50%, -50%)`;
+          }
+          raf = requestAnimationFrame(loop);
+        };
+        const start = () => { if (!raf) raf = requestAnimationFrame(loop); };
+        const stop = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) stop();
+          else start();
+        });
+        start();
+      })();
+    </script>
   </body>
 </html>
