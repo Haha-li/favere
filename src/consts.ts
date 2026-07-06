@@ -48,6 +48,5 @@ export const NAV_ITEMS = [
   { href: "/lab/", label: "实验" },
   { href: "/blog/", label: "文章" },
   { href: "/tags/", label: "标签" },
-  { href: "/archive/", label: "归档" },
-  { href: "/about/", label: "关于" }
+  { href: "/archive/", label: "归档" }
 ];

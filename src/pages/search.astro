@@ -7,25 +7,127 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     <div class="max-w-3xl">
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-mint">Search</p>
       <h1 class="mt-4 font-serif text-5xl font-bold tracking-normal text-zinc-950 dark:text-white">搜索文章</h1>
-      <p class="mt-5 text-lg leading-8 text-zinc-600 dark:text-zinc-300">输入关键词查找文章标题、正文和标签。</p>
+      <p class="mt-5 text-lg leading-8 text-zinc-600 dark:text-zinc-300">输入关键词查找文章标题、简介和标签。</p>
     </div>
-    <div id="search" class="mt-10"></div>
-  </section>
 
-  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-  <script is:inline src="/pagefind/pagefind-ui.js"></script>
-  <script is:inline>
-    window.addEventListener("DOMContentLoaded", () => {
-      if ("PagefindUI" in window) {
-        new window.PagefindUI({
-          element: "#search",
-          showSubResults: true,
-          showImages: false,
-          translations: {
-            placeholder: "搜索..."
-          }
-        });
-      }
-    });
-  </script>
+    <div class="mt-10 max-w-3xl">
+      <div class="relative">
+        <input
+          id="search-input"
+          type="search"
+          placeholder="搜索..."
+          autocomplete="off"
+          class="w-full rounded-[8px] border border-zinc-200 bg-white px-5 py-4 text-lg text-zinc-950 shadow-sm outline-none transition focus:border-mint/70 focus:ring-2 focus:ring-mint/30 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-white"
+        />
+      </div>
+
+      <p id="search-count" class="mt-4 text-sm font-medium text-mint" aria-live="polite"></p>
+      <p id="search-status" class="mt-2 text-sm text-zinc-500" aria-live="polite">正在加载文章索引...</p>
+
+      <div id="search-results" class="mt-6 space-y-3"></div>
+    </div>
+  </section>
 </BaseLayout>
+
+<script>
+  interface SearchPost {
+    id: string;
+    title: string;
+    description: string;
+    pubDate: string;
+    tags: string[];
+    cover?: string;
+    url: string;
+  }
+
+  const input = document.getElementById("search-input") as HTMLInputElement | null;
+  const resultsEl = document.getElementById("search-results");
+  const countEl = document.getElementById("search-count");
+  const statusEl = document.getElementById("search-status");
+
+  if (input && resultsEl && countEl && statusEl) {
+    let posts: SearchPost[] = [];
+
+    const formatDate = (iso: string) =>
+      new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      }).format(new Date(iso));
+
+    const render = (query: string) => {
+      const q = query.trim().toLowerCase();
+
+      if (!q) {
+        countEl.textContent = "";
+        statusEl.textContent = posts.length ? "输入关键词开始搜索。" : "";
+        resultsEl.innerHTML = "";
+        return;
+      }
+
+      const matched = posts.filter((p) => {
+        const haystack = [p.title, p.description, p.tags.join(" ")].join(" ").toLowerCase();
+        return haystack.includes(q);
+      });
+
+      countEl.textContent = `找到 ${matched.length} 篇`;
+      resultsEl.innerHTML = "";
+
+      if (matched.length === 0) {
+        statusEl.textContent = "没有匹配的文章。";
+        return;
+      }
+
+      statusEl.textContent = "";
+
+      for (const p of matched) {
+        const a = document.createElement("a");
+        a.className =
+          "focus-ring surface flex flex-col gap-2 rounded-[8px] p-5 transition hover:border-mint/70";
+        a.href = p.url;
+
+        const title = document.createElement("span");
+        title.className = "font-semibold text-zinc-950 dark:text-white";
+        title.textContent = p.title;
+        a.appendChild(title);
+
+        if (p.description) {
+          const desc = document.createElement("span");
+          desc.className = "text-sm leading-6 text-zinc-600 dark:text-zinc-300";
+          desc.textContent = p.description;
+          a.appendChild(desc);
+        }
+
+        const meta = document.createElement("span");
+        meta.className = "flex flex-wrap items-center gap-2 text-xs text-zinc-500";
+        const date = document.createElement("span");
+        date.textContent = formatDate(p.pubDate);
+        meta.appendChild(date);
+        for (const t of p.tags) {
+          const tag = document.createElement("span");
+          tag.className = "text-mint";
+          tag.textContent = `#${t}`;
+          meta.appendChild(tag);
+        }
+        a.appendChild(meta);
+
+        resultsEl.appendChild(a);
+      }
+    };
+
+    input.addEventListener("input", () => render(input.value));
+
+    fetch("/api/posts.json")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: { posts: SearchPost[] }) => {
+        posts = data.posts ?? [];
+        statusEl.textContent = `已加载 ${posts.length} 篇文章，输入关键词开始搜索。`;
+      })
+      .catch(() => {
+        statusEl.textContent = "加载文章索引失败，请刷新重试。";
+      });
+  }
+</script>

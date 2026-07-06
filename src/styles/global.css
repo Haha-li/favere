@@ -118,9 +118,8 @@
 }
 
 /* ============================================================
-   Cyberpunk theme (shared by /, /lab, /blog, /tags, /archive,
-   /about via BaseLayout theme="cyber"; article pages use
-   theme="cyber-read" via CyberBackground variant="read").
+   Cyberpunk theme (shared by /, /lab, /blog, /tags, /archive;
+   article pages use theme="cyber-read" via CyberBackground variant="read").
    ============================================================ */
 :root {
   --cy-bg: #06070d;
