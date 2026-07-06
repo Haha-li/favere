@@ -3,15 +3,14 @@ import { ArrowRight, ArrowDown, Terminal, PenLine } from "@lucide/astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { SITE, PROFILE } from "@/consts";
 import { getAllPosts, formatDate, getReadingMinutes } from "@/lib/posts";
+import { getRunDays } from "@/lib/site";
 
 const posts = await getAllPosts();
 const featured = posts.slice(0, 3);
 const totalPosts = posts.length;
 const allTags = posts.flatMap((p) => p.data.tags);
 const totalTags = new Set(allTags).size;
-const startDate = new Date(PROFILE.startedAt);
-const today = new Date();
-const runDays = Math.max(1, Math.ceil(Math.abs(today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+const runDays = getRunDays();
 
 const roles = [PROFILE.role, "实验员", "长期主义记录者", "技术实践者"];
 const marquee = ["Astro", "TypeScript", "Tailwind", "Cloudflare", "React", "MDX", "Keystatic", "Vite", "Shiki"];

@@ -3,6 +3,7 @@ import { Sparkles, Tag } from "@lucide/astro";
 import { PROFILE } from "@/consts";
 import type { BlogPost } from "@/lib/posts";
 import { getTags } from "@/lib/posts";
+import { getRunDays } from "@/lib/site";
 
 interface Props {
   posts: BlogPost[];
@@ -14,12 +15,7 @@ const { posts } = Astro.props;
 const totalPosts = posts.length;
 const allTags = getTags(posts);
 const totalTags = allTags.length;
-
-// Dynamically calculate days running since May 20, 2026
-const startDate = new Date(PROFILE.startedAt);
-const today = new Date();
-const diffTime = Math.abs(today.getTime() - startDate.getTime());
-const runDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+const runDays = getRunDays();
 
 const stickyNotes = [
   {
