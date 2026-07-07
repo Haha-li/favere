@@ -4,15 +4,18 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { formatDate, getAllPosts, postUrl } from "@/lib/posts";
 
 const posts = await getAllPosts();
-const years = new Map<number, typeof posts>();
+const years = new Map<number, Map<number, typeof posts>>();
 
 for (const post of posts) {
-  const year = post.data.pubDate.getFullYear();
-  years.set(year, [...(years.get(year) ?? []), post]);
+  const d = post.data.pubDate;
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  if (!years.has(year)) years.set(year, new Map());
+  years.get(year)!.set(month, [...(years.get(year)!.get(month) ?? []), post]);
 }
 ---
 
-<BaseLayout title="归档" description="按时间浏览所有文章。" theme="cyber">
+<BaseLayout title="归档" description="按年月浏览所有文章。" theme="cyber">
   <section class="page-shell py-12">
     <div class="max-w-3xl">
       <p class="text-sm font-semibold uppercase tracking-[0.18em] text-coral">Archive</p>
@@ -20,18 +23,25 @@ for (const post of posts) {
     </div>
 
     <div class="mt-10 space-y-10">
-      {[...years.entries()].map(([year, items]) => (
+      {[...years.entries()].map(([year, months]) => (
         <section class="grid gap-5 md:grid-cols-[160px_1fr]">
           <h2 class="font-serif text-3xl font-bold text-zinc-950 dark:text-white">{year}</h2>
-          <div class="space-y-3">
-            {items.map((post) => (
-              <a class="focus-ring surface flex flex-col gap-2 rounded-[8px] p-5 transition hover:border-mint/70 sm:flex-row sm:items-center sm:justify-between" href={postUrl(post)}>
-                <span class="font-semibold text-zinc-950 dark:text-white">{post.data.title}</span>
-                <span class="inline-flex items-center gap-1.5 text-sm text-zinc-500">
-                  <CalendarDays class="size-4" />
-                  {formatDate(post.data.pubDate)}
-                </span>
-              </a>
+          <div class="space-y-6">
+            {[...months.entries()].map(([month, items]) => (
+              <div>
+                <h3 class="mb-3 font-mono text-sm font-semibold tracking-[0.12em] text-coral">{month}月</h3>
+                <div class="space-y-3">
+                  {items.map((post) => (
+                    <a class="focus-ring surface flex flex-col gap-2 rounded-[8px] p-5 transition hover:border-mint/70 sm:flex-row sm:items-center sm:justify-between" href={postUrl(post)}>
+                      <span class="font-semibold text-zinc-950 dark:text-white">{post.data.title}</span>
+                      <span class="inline-flex items-center gap-1.5 text-sm text-zinc-500">
+                        <CalendarDays class="size-4" />
+                        {formatDate(post.data.pubDate)}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>
