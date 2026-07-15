@@ -162,6 +162,7 @@ body.cyber {
   inset: 0;
   width: 100%;
   height: 100%;
+  contain: strict;
 }
 .cyber-grid-floor {
   position: absolute;
@@ -169,7 +170,7 @@ body.cyber {
   left: 50%;
   width: 220%;
   height: 55vh;
-  transform: translate3d(calc(var(--mx) * 22px), calc(var(--my) * 12px), 0) translateX(-50%) perspective(38vh) rotateX(62deg);
+  transform: translate3d(calc(var(--mx) * 12px), calc(var(--my) * 7px), 0) translateX(-50%) perspective(38vh) rotateX(62deg);
   transform-origin: bottom center;
   background-image:
     linear-gradient(to right, rgba(0, 240, 255, 0.32) 1px, transparent 1px),
@@ -177,15 +178,10 @@ body.cyber {
   background-size: 4.5vh 4.5vh;
   -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 95%);
   mask-image: linear-gradient(to top, #000 10%, transparent 95%);
-  animation: grid-move 6s linear infinite;
+  will-change: transform;
 }
 .cyber-grid-floor[data-static="true"] {
-  animation: none;
   opacity: 0.4;
-}
-@keyframes grid-move {
-  from { background-position-y: 0; }
-  to { background-position-y: 4.5vh; }
 }
 .cyber-scanlines {
   position: absolute;
@@ -214,7 +210,7 @@ body.cyber {
 /* ===== Mouse parallax layers ===== */
 .parallax-name {
   transform: translate3d(calc(var(--mx) * -10px), calc(var(--my) * -10px), 0);
-  transition: transform 0.2s ease-out;
+  transition: transform 0.12s ease-out;
 }
 
 /* ===== Glitch name ===== */
@@ -313,9 +309,8 @@ body.cyber {
 .hud-card,
 .cyber-card {
   position: relative;
-  background: linear-gradient(180deg, rgba(0, 240, 255, 0.04), rgba(0, 0, 0, 0.35));
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.045), rgba(6, 7, 13, 0.92));
   border: 1px solid var(--cy-line);
-  backdrop-filter: blur(6px);
 }
 .hud-card::before,
 .hud-card::after,
@@ -373,7 +368,9 @@ body.cyber {
 /* ===== Marquee ===== */
 .marquee {
   animation: marquee-scroll 28s linear infinite;
+  animation-play-state: paused;
 }
+.marquee.is-running { animation-play-state: running; }
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -477,7 +474,7 @@ section:hover .marquee { animation-play-state: paused; }
 }
 :root:not(.dark) .hud-card,
 :root:not(.dark) .cyber-card {
-  background: linear-gradient(180deg, rgba(0, 184, 212, 0.05), rgba(255, 255, 255, 0.65));
+  background: linear-gradient(180deg, rgba(0, 184, 212, 0.05), rgba(255, 255, 255, 0.92));
   border-color: var(--cy-line);
 }
 :root:not(.dark) .hud-card::before,
@@ -504,57 +501,23 @@ section:hover .marquee { animation-play-state: paused; }
   text-shadow: 0 0 14px rgba(0, 184, 212, 0.30);
 }
 
-/* ============================================================
-   Custom neon cursor — HUD corner-bracket reticle.
-   A hollow frame of four corner brackets that tracks the pointer
-   1:1 (no lerp, no rAF loop); on interactive elements the brackets
-   contract and turn magenta. Enabled only on fine pointers without
-   reduced-motion; the JS in BaseLayout adds .has-custom-cursor to
-   <html> to hide the native cursor. Colors follow --cy-* vars.
-   ============================================================ */
-.cursor-reticle {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 30px;
-  height: 30px;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0;
-  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              height 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.2s ease;
-}
-.cursor-reticle span {
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border: 0 solid var(--cy-cyan);
-  box-shadow: 0 0 6px rgba(var(--cy-cyan-rgb), 0.5);
-  transition: border-color 0.22s ease, box-shadow 0.22s ease;
-}
-.cursor-reticle .tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
-.cursor-reticle .tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
-.cursor-reticle .bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
-.cursor-reticle .br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
-.cursor-reticle.is-hover {
-  width: 20px;
-  height: 20px;
-}
-.cursor-reticle.is-hover span {
-  border-color: var(--cy-magenta);
-  box-shadow: 0 0 8px rgba(var(--cy-magenta-rgb), 0.6);
-}
-html.has-custom-cursor,
-html.has-custom-cursor a,
-html.has-custom-cursor button,
-html.has-custom-cursor input,
-html.has-custom-cursor textarea,
-html.has-custom-cursor select,
-html.has-custom-cursor label,
-html.has-custom-cursor summary,
-html.has-custom-cursor [role="button"] {
-  cursor: none;
+/* ===== System-rendered HUD cursor ===== */
+@media (pointer: fine) {
+  html,
+  body {
+    cursor: url("/cursor-hud.svg") 16 16, crosshair;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  label,
+  summary,
+  [role="button"] {
+    cursor: url("/cursor-hud-active.svg") 16 16, pointer;
+  }
 }
 
 /* ============================================================
@@ -654,10 +617,8 @@ html.has-custom-cursor [role="button"] {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--cy-dim);
-  background: color-mix(in srgb, var(--cy-bg) 82%, transparent);
+  background: color-mix(in srgb, var(--cy-bg) 94%, transparent);
   border-top: 1px solid var(--cy-line);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   pointer-events: none;
 }
 .cyber-statusbar .ml-auto { margin-left: auto; }

@@ -1,0 +1,174 @@
+<script>
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const BOOT_CHARACTER_DELAY = 26;
+  const BOOT_LINE_DELAY = 140;
+  const BOOT_FINISH_DELAY = 420;
+  const BOOT_FADE_DELAY = 500;
+  const ROLE_INTERVAL = 2600;
+  const TYPE_DELAY_MIN = 65;
+  const TYPE_DELAY_RANGE = 35;
+  const DELETE_DELAY = 45;
+  const PHRASE_HOLD_DELAY = 1800;
+  const PHRASE_SWITCH_DELAY = 350;
+  const TYPEWRITER_START_DELAY = 700;
+  const CLOCK_INTERVAL = 1000;
+  const TELEMETRY_INTERVAL = 5000;
+
+  const wait = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
+
+  const typeBootLine = (element: HTMLElement) =>
+    new Promise<void>((resolve) => {
+      const fullText = element.dataset.full || "";
+      let index = 0;
+      element.textContent = "";
+      element.classList.add("is-shown");
+      const tick = () => {
+        element.textContent = fullText.slice(0, index);
+        index++;
+        if (index > fullText.length) {
+          element.classList.add("is-done");
+          resolve();
+          return;
+        }
+        setTimeout(tick, prefersReduced ? 0 : BOOT_CHARACTER_DELAY);
+      };
+      tick();
+    });
+
+  const initializeBootScreen = async () => {
+    const bootScreen = document.querySelector<HTMLElement>(".boot-screen");
+    if (!document.documentElement.classList.contains("booting") || !bootScreen) return;
+    const lines = bootScreen.querySelectorAll<HTMLElement>(".boot-line");
+    for (const line of lines) {
+      await typeBootLine(line);
+      await wait(prefersReduced ? 0 : BOOT_LINE_DELAY);
+    }
+    await wait(prefersReduced ? 0 : BOOT_FINISH_DELAY);
+    document.documentElement.classList.add("is-boot-done");
+    await wait(BOOT_FADE_DELAY);
+    document.documentElement.classList.remove("booting", "is-boot-done");
+    try { sessionStorage.setItem("booted", "1"); } catch (_) {}
+  };
+
+  const initializeSectionDots = () => {
+    const dots = Array.from(document.querySelectorAll<HTMLElement>(".section-dot"));
+    const byTarget = new Map(dots.map((dot) => [dot.dataset.target, dot]));
+    const sections = Array.from(byTarget.keys())
+      .map((id) => document.getElementById(id!))
+      .filter((element): element is HTMLElement => !!element);
+    if (!sections.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        dots.forEach((dot) => {
+          dot.classList.toggle("is-active", dot.dataset.target === entry.target.id);
+        });
+      }
+    }, { rootMargin: "-40% 0px -55% 0px", threshold: 0 });
+    sections.forEach((section) => observer.observe(section));
+  };
+
+  const observeRevealElements = (
+    selector: string,
+    threshold: number,
+    rootMargin: string
+  ) => {
+    const elements = document.querySelectorAll<HTMLElement>(selector);
+    if (!elements.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      }
+    }, { threshold, rootMargin });
+    elements.forEach((element) => observer.observe(element));
+  };
+
+  const initializeMarquee = () => {
+    const marquee = document.querySelector<HTMLElement>(".marquee");
+    if (!marquee || prefersReduced) return;
+    new IntersectionObserver(([entry]) => {
+      marquee.classList.toggle("is-running", entry.isIntersecting);
+    }, { rootMargin: "80px" }).observe(marquee);
+  };
+
+  const initializeRoles = () => {
+    const track = document.querySelector<HTMLElement>(".role-track");
+    const roles: string[] = track ? JSON.parse(track.dataset.roles || "[]") : [];
+    if (!track || roles.length <= 1 || prefersReduced) return;
+    let index = 0;
+    track.innerHTML = roles
+      .map((role) => `<span class="block h-9 leading-9">&gt; ${role}</span>`)
+      .join("");
+    const step = () => {
+      index = (index + 1) % roles.length;
+      track.style.transform = `translateY(-${index * 2.25}rem)`;
+    };
+    let timer = setInterval(step, ROLE_INTERVAL);
+    document.addEventListener("visibilitychange", () => {
+      clearInterval(timer);
+      if (!document.hidden) timer = setInterval(step, ROLE_INTERVAL);
+    });
+  };
+
+  const initializeTypewriter = () => {
+    const container = document.querySelector<HTMLElement>(".typewriter");
+    const text = container?.querySelector<HTMLElement>(".tw-text");
+    const phrases: string[] = container ? JSON.parse(container.dataset.phrases || "[]") : [];
+    if (!text || !phrases.length) return;
+    if (prefersReduced) {
+      text.textContent = phrases[0];
+      return;
+    }
+    let phraseIndex = 0;
+    let characterIndex = 0;
+    let deleting = false;
+    const tick = () => {
+      const phrase = phrases[phraseIndex];
+      characterIndex += deleting ? -1 : 1;
+      text.textContent = phrase.slice(0, characterIndex);
+      if (!deleting && characterIndex === phrase.length) {
+        deleting = true;
+        setTimeout(tick, PHRASE_HOLD_DELAY);
+      } else if (deleting && characterIndex === 0) {
+        deleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        setTimeout(tick, PHRASE_SWITCH_DELAY);
+      } else {
+        const delay = deleting ? DELETE_DELAY : TYPE_DELAY_MIN + Math.random() * TYPE_DELAY_RANGE;
+        setTimeout(tick, delay);
+      }
+    };
+    setTimeout(tick, TYPEWRITER_START_DELAY);
+  };
+
+  const initializeTelemetry = () => {
+    const clock = document.querySelector<HTMLElement>("[data-clock]");
+    const cpu = document.querySelector<HTMLElement>("[data-cpu]");
+    const net = document.querySelector<HTMLElement>("[data-net]");
+    const pad = (value: number) => String(value).padStart(2, "0");
+    if (clock) {
+      const updateClock = () => {
+        const now = new Date();
+        clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      };
+      updateClock();
+      setInterval(updateClock, CLOCK_INTERVAL);
+    }
+    if (!cpu || !net || prefersReduced) return;
+    setInterval(() => {
+      cpu.textContent = `CPU ${Math.floor(8 + Math.random() * 20)}%`;
+      net.textContent = `NET ${(2 + Math.random() * 3).toFixed(1)}k/s`;
+    }, TELEMETRY_INTERVAL);
+  };
+
+  void initializeBootScreen();
+  initializeSectionDots();
+  observeRevealElements(".reveal", 0.12, "0px 0px -40px 0px");
+  observeRevealElements(".chapter", 0.2, "0px 0px -15% 0px");
+  initializeMarquee();
+  initializeRoles();
+  initializeTypewriter();
+  initializeTelemetry();
+</script>

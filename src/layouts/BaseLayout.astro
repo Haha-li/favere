@@ -77,48 +77,5 @@ const cyberVariant = theme === "cyber-read" ? "read" : "full";
       <Footer />
     </div>
     <CommandPalette />
-
-    <script>
-      (() => {
-        // Only on fine pointers (mouse) and when motion is allowed.
-        const fine = window.matchMedia("(pointer: fine)").matches;
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (!fine || reduced) return;
-
-        // HUD corner-bracket reticle: 1:1 instant tracking, no rAF loop.
-        const reticle = document.createElement("div");
-        reticle.className = "cursor-reticle";
-        for (const c of ["tl", "tr", "bl", "br"]) {
-          const s = document.createElement("span");
-          s.className = c;
-          reticle.appendChild(s);
-        }
-        document.body.append(reticle);
-        document.documentElement.classList.add("has-custom-cursor");
-
-        let shown = false;
-        const show = () => { shown = true; reticle.style.opacity = "1"; };
-        const hide = () => { shown = false; reticle.style.opacity = "0"; };
-
-        // Translate in mousemove (coalesced to once per frame by the browser).
-        window.addEventListener("mousemove", (e) => {
-          reticle.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-          if (!shown) show();
-        }, { passive: true });
-
-        document.addEventListener("mouseleave", hide);
-        document.addEventListener("mouseenter", show);
-
-        const hoverSel = "a, button, input, textarea, select, label, summary, [role='button']";
-        document.addEventListener("mouseover", (e) => {
-          const t = e.target;
-          if (t instanceof Element && t.closest(hoverSel)) reticle.classList.add("is-hover");
-        });
-        document.addEventListener("mouseout", (e) => {
-          const t = e.target;
-          if (t instanceof Element && t.closest(hoverSel)) reticle.classList.remove("is-hover");
-        });
-      })();
-    </script>
   </body>
 </html>
