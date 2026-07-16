@@ -43,3 +43,4 @@ Thumbs.db
 .codex/skills/ui-ux-pro-max/scripts/__pycache__/design_system.cpython-314.pyc
 .codex/skills/ui-ux-pro-max/scripts/__pycache__/search.cpython-314.pyc
 .codex/dev-*.log
+.ace-tool/

@@ -118,7 +118,7 @@
 }
 
 /* ============================================================
-   Cyberpunk theme (shared by /, /lab, /blog, /tags, /archive;
+   Cyberpunk theme (shared by /, /lab, /blog, /tags, /archive, /friends;
    article pages use theme="cyber-read" via CyberBackground variant="read").
    ============================================================ */
 :root {
