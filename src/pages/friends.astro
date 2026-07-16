@@ -160,21 +160,11 @@ const friends = FRIENDS.map((friend) => {
           <p class="font-mono text-xs uppercase tracking-[0.18em] text-cy-cyan">// exchange protocol</p>
           <h2 class="mt-3 font-serif text-3xl font-bold text-zinc-950 dark:text-white">交换友链</h2>
           <p class="mt-4 max-w-xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-            欢迎独立博客与个人站点互换链接。请先添加本站，再通过邮件告知你的站点信息。
-            优先通过内容真实、可长期访问的站点。
+            欢迎独立博客与个人站点互换链接。
           </p>
           <ul class="mt-5 space-y-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">
             <li><span class="text-mint">01</span> 站点可公网访问，无大量无效跳转</li>
-            <li><span class="text-mint">02</span> 有原创内容或清晰的个人表达</li>
-            <li><span class="text-mint">03</span> 先挂本站信息，再来申请</li>
           </ul>
-          <a
-            class="neon-btn neon-btn-cyan focus-ring mt-6 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
-            href={`mailto:${FRIEND_EXCHANGE.email}?subject=${encodeURIComponent(`友链申请 · ${SITE.shortName}`)}`}
-          >
-            <Mail class="size-4" />
-            发送申请邮件
-          </a>
         </div>
 
         <div class="surface rounded-[8px] p-5">
@@ -204,10 +194,6 @@ const friends = FRIENDS.map((friend) => {
             <div class="flex justify-between gap-3">
               <dt class="text-zinc-400">URL</dt>
               <dd class="truncate text-right text-zinc-700 dark:text-zinc-200">{FRIEND_EXCHANGE.url}</dd>
-            </div>
-            <div class="flex justify-between gap-3">
-              <dt class="text-zinc-400">MAIL</dt>
-              <dd class="truncate text-right text-zinc-700 dark:text-zinc-200">{FRIEND_EXCHANGE.email}</dd>
             </div>
           </dl>
         </div>

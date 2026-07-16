@@ -8,7 +8,7 @@ export const SITE = {
   locale: "zh-CN",
   brandInitial: "H",
   github: "https://github.com/Haha-li/favere",
-  email: "hello@example.com",
+  email: "",
   serviceName: "favere-blog"
 } as const;
 
